@@ -9,25 +9,30 @@ import { formatCurrency } from '../../utils/formatters';
 interface WhatsAppButtonProps {
   customerData?: CustomerOrderData;
   onOrderSent?: () => void;
+  onValidationError?: () => void;
   className?: string;
 }
 
 export const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({
   customerData,
   onOrderSent,
+  onValidationError,
   className = '',
 }) => {
   const { items, totalPrice, clearCart, closeCart, startNewSandwich } = useCart();
   const { showToast } = useToast();
 
   const isNameMissing = !customerData?.customerName?.trim();
-  const isDisabled = items.length === 0 || isNameMissing;
+  const isDisabled = items.length === 0;
 
   const handleSendOrder = () => {
     if (items.length === 0) return;
 
     if (isNameMissing) {
-      showToast('Por favor completá tu nombre antes de enviar el pedido.', 'error');
+      if (onValidationError) {
+        onValidationError();
+      }
+      showToast('⚠️ Ingresá tu nombre para poder enviar el pedido.', 'error');
       const inputEl = document.getElementById('customerName');
       if (inputEl) {
         inputEl.focus();
@@ -63,7 +68,7 @@ export const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({
       whileTap={isDisabled ? undefined : { scale: 0.98 }}
       onClick={handleSendOrder}
       disabled={isDisabled}
-      className={`w-full flex items-center justify-between gap-3 px-5 py-4 rounded-2xl bg-gourmet-whatsapp hover:bg-gourmet-whatsappHover text-white font-extrabold shadow-gourmet-md transition-all disabled:opacity-60 disabled:cursor-not-allowed select-none ${className}`}
+      className={`w-full flex items-center justify-between gap-3 px-5 py-4 rounded-2xl bg-gourmet-whatsapp hover:bg-gourmet-whatsappHover text-white font-extrabold shadow-gourmet-md transition-all disabled:opacity-50 disabled:cursor-not-allowed select-none cursor-pointer ${className}`}
     >
       <div className="flex items-center gap-3">
         <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center shrink-0">
@@ -71,10 +76,10 @@ export const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({
         </div>
         <div className="text-left">
           <span className="block text-xs uppercase tracking-wider text-green-100 font-bold">
-            {isNameMissing ? 'Ingresá tu nombre' : `Listo para enviar (${customerData?.orderCode || 'MG'})`}
+            {isNameMissing ? 'Paso final: Ingresá tu nombre' : `Listo para enviar (${customerData?.orderCode || 'MG'})`}
           </span>
           <span className="text-sm sm:text-base font-bold">
-            {isNameMissing ? 'Completá tu nombre para enviar' : 'Enviar Pedido por WhatsApp'}
+            Enviar Pedido por WhatsApp
           </span>
         </div>
       </div>

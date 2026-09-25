@@ -13,6 +13,7 @@ export const CartDrawer: React.FC = () => {
     notes: '',
     orderCode: generateOrderCode(),
   }));
+  const [hasNameError, setHasNameError] = useState<boolean>(false);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -32,6 +33,13 @@ export const CartDrawer: React.FC = () => {
 
   if (!isOpen) return null;
 
+  const handleCustomerDataChange = (data: CustomerOrderData) => {
+    setCustomerData(data);
+    if (data.customerName?.trim()) {
+      setHasNameError(false);
+    }
+  };
+
   const handleClearCart = () => {
     clearCart();
     setCustomerData({
@@ -39,6 +47,7 @@ export const CartDrawer: React.FC = () => {
       notes: '',
       orderCode: generateOrderCode(),
     });
+    setHasNameError(false);
     startNewSandwich();
   };
 
@@ -57,6 +66,7 @@ export const CartDrawer: React.FC = () => {
       notes: '',
       orderCode: generateOrderCode(),
     });
+    setHasNameError(false);
   };
 
   return (
@@ -149,11 +159,13 @@ export const CartDrawer: React.FC = () => {
           <div className="bg-[#E4DACD] p-4 sm:p-6 border-t border-stone-300 shadow-lg space-y-3.5">
             <CartSummary
               customerData={customerData}
-              onCustomerDataChange={setCustomerData}
+              onCustomerDataChange={handleCustomerDataChange}
+              hasNameError={hasNameError}
             />
             <WhatsAppButton
               customerData={customerData}
               onOrderSent={handleOrderSent}
+              onValidationError={() => setHasNameError(true)}
             />
           </div>
         )}

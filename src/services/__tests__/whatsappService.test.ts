@@ -1,18 +1,49 @@
-import { describe, it, expect } from 'vitest';
-import { formatWhatsAppMessage, generateWhatsAppUrl, generateOrderCode } from '../whatsappService';
+import { describe, it, expect, beforeEach } from 'vitest';
+import {
+  formatWhatsAppMessage,
+  generateWhatsAppUrl,
+  generateOrderCode,
+  getDailyOrderCode,
+  advanceToNextDailyOrderCode,
+  resetDailyOrderTracker,
+} from '../whatsappService';
 import { FIAMBRES_DATA } from '../../data/fiambres';
 import { QUESOS_DATA } from '../../data/quesos';
 import { EXTRAS_DATA } from '../../data/extras';
 import { CartItem } from '../../types/product';
 
 describe('WhatsAppService', () => {
+  beforeEach(() => {
+    resetDailyOrderTracker();
+  });
+
   it('debe retornar string vacío si el carrito está vacío', () => {
     expect(formatWhatsAppMessage([])).toBe('');
   });
 
-  it('debe generar un código de pedido en formato MG - XX', () => {
-    const code = generateOrderCode();
-    expect(code).toMatch(/^MG - \d{2}$/);
+  it('debe generar y avanzar números de pedido correlativos en el mismo día sin repetirse', () => {
+    // Primer pedido del día
+    const code1 = generateOrderCode();
+    expect(code1).toBe('MG - 01');
+
+    // Al finalizar y avanzar al segundo pedido
+    const code2 = advanceToNextDailyOrderCode();
+    expect(code2).toBe('MG - 02');
+
+    // Tercer pedido
+    const code3 = advanceToNextDailyOrderCode();
+    expect(code3).toBe('MG - 03');
+  });
+
+  it('debe reiniciar automáticamente la secuencia a MG - 01 al pasar al día siguiente', () => {
+    // Pedidos del día 25
+    getDailyOrderCode(false, '2026-09-25');
+    getDailyOrderCode(true, '2026-09-25'); // MG - 02
+    getDailyOrderCode(true, '2026-09-25'); // MG - 03
+
+    // Pasa al día siguiente (2026-09-26)
+    const codeDiaSiguiente = getDailyOrderCode(false, '2026-09-26');
+    expect(codeDiaSiguiente).toBe('MG - 01');
   });
 
   it('debe estructurar correctamente el mensaje con código, listas y formato simplificado', () => {

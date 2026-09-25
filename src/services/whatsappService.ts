@@ -8,12 +8,107 @@ export interface CustomerOrderData {
   orderCode?: string;
 }
 
+export const DAILY_ORDER_TRACKER_KEY = 'megusta_daily_order_tracker_v1';
+
+export interface DailyOrderTracker {
+  date: string;
+  lastNumber: number;
+}
+
 /**
- * Genera un código de pedido de 2 dígitos asignado (ej: MG - 00 a MG - 99)
+ * Obtiene la fecha local en formato YYYY-MM-DD
+ */
+export function getLocalDateString(date: Date = new Date()): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+let memoryTracker: DailyOrderTracker | null = null;
+
+/**
+ * Obtiene el código de pedido diario registrado o genera el siguiente.
+ * Si cambió el día, reinicia automáticamente el contador a 01.
+ */
+export function getDailyOrderCode(advance = false, customDate?: string): string {
+  const today = customDate || getLocalDateString();
+  let tracker: DailyOrderTracker = { date: today, lastNumber: 1 };
+
+  const hasLocalStorage = typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';
+
+  try {
+    if (hasLocalStorage) {
+      const raw = window.localStorage.getItem(DAILY_ORDER_TRACKER_KEY);
+      if (raw) {
+        const parsed: DailyOrderTracker = JSON.parse(raw);
+        if (parsed && parsed.date === today && typeof parsed.lastNumber === 'number') {
+          tracker = {
+            date: today,
+            lastNumber: advance ? parsed.lastNumber + 1 : parsed.lastNumber,
+          };
+        } else {
+          // Si es un día distinto, se reinicia la cuenta a 1
+          tracker = { date: today, lastNumber: 1 };
+        }
+      }
+    } else if (memoryTracker) {
+      if (memoryTracker.date === today) {
+        tracker = {
+          date: today,
+          lastNumber: advance ? memoryTracker.lastNumber + 1 : memoryTracker.lastNumber,
+        };
+      } else {
+        tracker = { date: today, lastNumber: 1 };
+      }
+    }
+  } catch {
+    tracker = { date: today, lastNumber: 1 };
+  }
+
+  memoryTracker = tracker;
+
+  if (hasLocalStorage) {
+    try {
+      window.localStorage.setItem(DAILY_ORDER_TRACKER_KEY, JSON.stringify(tracker));
+    } catch {
+      // Ignorar excepciones de cuota de almacenamiento
+    }
+  }
+
+  const formattedNum = tracker.lastNumber < 100
+    ? String(tracker.lastNumber).padStart(2, '0')
+    : String(tracker.lastNumber);
+
+  return `MG - ${formattedNum}`;
+}
+
+/**
+ * Avanza y registra el siguiente número para el próximo pedido del día
+ */
+export function advanceToNextDailyOrderCode(): string {
+  return getDailyOrderCode(true);
+}
+
+/**
+ * Función para reiniciar el tracker (útil para pruebas y limpiezas)
+ */
+export function resetDailyOrderTracker(): void {
+  memoryTracker = null;
+  if (typeof window !== 'undefined' && typeof window.localStorage !== 'undefined') {
+    try {
+      window.localStorage.removeItem(DAILY_ORDER_TRACKER_KEY);
+    } catch {
+      // ignore
+    }
+  }
+}
+
+/**
+ * Función compatible con el resto del sistema
  */
 export function generateOrderCode(): string {
-  const randomNum = Math.floor(Math.random() * 100);
-  return `MG - ${String(randomNum).padStart(2, '0')}`;
+  return getDailyOrderCode(false);
 }
 
 /**

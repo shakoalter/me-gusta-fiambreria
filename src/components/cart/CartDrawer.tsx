@@ -4,14 +4,18 @@ import { useCart } from '../../context/CartContext';
 import { CartItemCard } from './CartItemCard';
 import { CartSummary } from './CartSummary';
 import { WhatsAppButton } from './WhatsAppButton';
-import { CustomerOrderData, generateOrderCode } from '../../services/whatsappService';
+import {
+  CustomerOrderData,
+  getDailyOrderCode,
+  advanceToNextDailyOrderCode,
+} from '../../services/whatsappService';
 
 export const CartDrawer: React.FC = () => {
   const { items, isOpen, closeCart, clearCart, startNewSandwich, totalQuantity } = useCart();
   const [customerData, setCustomerData] = useState<CustomerOrderData>(() => ({
     customerName: '',
     notes: '',
-    orderCode: generateOrderCode(),
+    orderCode: getDailyOrderCode(false),
   }));
   const [hasNameError, setHasNameError] = useState<boolean>(false);
 
@@ -45,7 +49,7 @@ export const CartDrawer: React.FC = () => {
     setCustomerData({
       customerName: '',
       notes: '',
-      orderCode: generateOrderCode(),
+      orderCode: getDailyOrderCode(false),
     });
     setHasNameError(false);
     startNewSandwich();
@@ -61,10 +65,11 @@ export const CartDrawer: React.FC = () => {
   };
 
   const handleOrderSent = () => {
+    const nextCode = advanceToNextDailyOrderCode();
     setCustomerData({
       customerName: '',
       notes: '',
-      orderCode: generateOrderCode(),
+      orderCode: nextCode,
     });
     setHasNameError(false);
   };

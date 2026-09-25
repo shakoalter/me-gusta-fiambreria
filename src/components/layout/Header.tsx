@@ -95,7 +95,7 @@ export const Header: React.FC = () => {
                 {STORE_CONFIG.address}
               </span>
               <span className="text-[10px] text-gourmet-muted block leading-tight">
-                Córdoba, Argentina
+                CABA, Argentina
               </span>
             </div>
           </div>
@@ -110,7 +110,7 @@ export const Header: React.FC = () => {
                 Pedidos: {STORE_CONFIG.displayPhone}
               </span>
               <span className="text-[10px] text-gourmet-muted block leading-tight">
-                Lun a Sáb · 9 a 21 hs
+                Lun a Sáb · 10 a 13:30 / 16:30 a 20:30
               </span>
             </div>
           </div>

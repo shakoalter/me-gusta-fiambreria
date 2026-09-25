@@ -27,7 +27,7 @@ export const QUESOS_DATA: Queso[] = [
   },
   {
     id: 'cheddar',
-    name: 'Cheddar Artesanal',
+    name: 'Cheddar',
     flavorProfile: 'Cremoso',
     description: 'Sabor intenso, textura cremosa y un toque dorado irresistible.',
     image: '/images/quesos/cheddar.jpg',

@@ -106,7 +106,7 @@ export const SandwichBuilder: React.FC = () => {
     <section
       id="builder-section"
       ref={builderContainerRef}
-      className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-16 scroll-mt-24"
+      className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-8 pb-16 scroll-mt-24"
     >
       {/* Encabezado Paso a Paso + Bodegón de Charcuterie */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 items-center mb-8">
@@ -156,7 +156,7 @@ export const SandwichBuilder: React.FC = () => {
       </div>
 
       {/* Tarjeta Contenedora Principal de los Pasos */}
-      <div className="bg-white rounded-3xl p-5 sm:p-8 border border-stone-200/90 shadow-sm">
+      <div className="bg-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-8 border border-stone-200/90 shadow-sm">
         {currentStep === 1 && (
           <StepFiambre
             selectedFiambre={selectedFiambre}

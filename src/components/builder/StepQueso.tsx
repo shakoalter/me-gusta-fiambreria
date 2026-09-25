@@ -80,7 +80,7 @@ export const StepQueso: React.FC<StepQuesoProps> = ({
       )}
 
       {/* Grid de Quesos */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
         {QUESOS_DATA.map((queso) => {
           const isSelected = selectedQueso?.id === queso.id;
 
@@ -95,14 +95,14 @@ export const StepQueso: React.FC<StepQuesoProps> = ({
               whileHover={{ y: -3 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => onSelect(queso)}
-              className={`relative flex flex-col justify-between p-4 rounded-2xl cursor-pointer transition-all border-2 select-none overflow-hidden ${
+              className={`relative flex flex-col justify-between p-2.5 sm:p-4 rounded-xl sm:rounded-2xl cursor-pointer transition-all border-2 select-none overflow-hidden ${
                 isSelected
-                  ? 'bg-white border-[#781D22] shadow-md ring-4 ring-red-900/10'
+                  ? 'bg-white border-[#781D22] shadow-md ring-2 sm:ring-4 ring-red-900/10'
                   : 'bg-white border-stone-200 hover:border-amber-700/50 hover:shadow-xs'
               }`}
             >
               {/* Imagen y Badges */}
-              <div className="relative aspect-[16/10] rounded-xl overflow-hidden bg-stone-100 mb-3">
+              <div className="relative aspect-[16/11] sm:aspect-[16/10] rounded-lg sm:rounded-xl overflow-hidden bg-stone-100 mb-2 sm:mb-3">
                 <img
                   src={queso.image}
                   alt={queso.name}
@@ -110,7 +110,7 @@ export const StepQueso: React.FC<StepQuesoProps> = ({
                   loading="lazy"
                 />
                 {queso.badge && (
-                  <div className="absolute top-2 left-2">
+                  <div className="absolute top-1.5 left-1.5 sm:top-2 sm:left-2 scale-75 sm:scale-100 origin-top-left">
                     <Badge variant="olive" size="sm">
                       <Sparkles className="w-3 h-3 mr-1 inline" />
                       {queso.badge}
@@ -118,40 +118,40 @@ export const StepQueso: React.FC<StepQuesoProps> = ({
                   </div>
                 )}
                 {isSelected && (
-                  <div className="absolute top-2 right-2 w-7 h-7 rounded-full bg-[#781D22] text-white flex items-center justify-center shadow-md animate-in fade-in zoom-in duration-200">
-                    <Check className="w-4 h-4 stroke-[3]" />
+                  <div className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 w-5 h-5 sm:w-7 sm:h-7 rounded-full bg-[#781D22] text-white flex items-center justify-center shadow-md animate-in fade-in zoom-in duration-200">
+                    <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[3]" />
                   </div>
                 )}
               </div>
 
               {/* Contenido */}
               <div>
-                <div className="flex items-center justify-between gap-1 mb-1">
-                  <span className="text-[10px] font-bold text-gourmet-olive uppercase tracking-wider">
+                <div className="flex items-center justify-between gap-1 mb-0.5 sm:mb-1">
+                  <span className="text-[9px] sm:text-[10px] font-bold text-gourmet-olive uppercase tracking-wider">
                     {queso.flavorProfile}
                   </span>
                 </div>
-                <h4 className="font-serif font-bold text-base text-gourmet-dark leading-tight">
+                <h4 className="font-serif font-bold text-xs sm:text-base text-gourmet-dark leading-tight line-clamp-1 sm:line-clamp-none">
                   {queso.name}
                 </h4>
-                <p className="text-xs text-gourmet-muted line-clamp-2 mt-1 leading-snug">
+                <p className="text-[10px] sm:text-xs text-gourmet-muted line-clamp-1 sm:line-clamp-2 mt-0.5 sm:mt-1 leading-snug">
                   {queso.description}
                 </p>
               </div>
 
               {/* Precio Combinado */}
-              <div className="mt-3 pt-2.5 border-t border-stone-100 flex items-center justify-between">
+              <div className="mt-2 sm:mt-3 pt-1.5 sm:pt-2.5 border-t border-stone-100 flex items-center justify-between">
                 {price !== null ? (
                   <PriceTag amount={price} size="sm" highlight={isSelected} />
                 ) : (
-                  <span className="text-xs text-gourmet-muted italic">Elegir para ver precio</span>
+                  <span className="text-[10px] sm:text-xs text-gourmet-muted italic">Elegir</span>
                 )}
                 <span
-                  className={`text-xs font-bold ${
+                  className={`text-[10px] sm:text-xs font-bold ${
                     isSelected ? 'text-[#781D22]' : 'text-stone-400'
                   }`}
                 >
-                  {isSelected ? 'Seleccionado' : 'Elegir'}
+                  {isSelected ? 'Elegido' : 'Elegir'}
                 </span>
               </div>
             </motion.div>

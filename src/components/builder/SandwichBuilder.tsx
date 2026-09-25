@@ -43,6 +43,7 @@ export const SandwichBuilder: React.FC = () => {
 
   const [addedSandwich, setAddedSandwich] = useState<SandwichCustomization | null>(null);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState<boolean>(false);
+  const isFirstMount = useRef(true);
 
   // Si se emite la señal de nuevo sándwich (desde el carrito vacío, hero o modal), reseteamos el builder
   useEffect(() => {
@@ -58,6 +59,18 @@ export const SandwichBuilder: React.FC = () => {
       builderContainerRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
   }, [itemToEdit, loadForEdit]);
+
+  // Scroll suave al inicio del armador cada vez que avanza o cambia de paso (Paso 1 -> Paso 2 -> Paso 3)
+  useEffect(() => {
+    if (isFirstMount.current) {
+      isFirstMount.current = false;
+      return;
+    }
+    const el = document.getElementById('builder-section');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [currentStep]);
 
   const handleFiambreSelect = (fiambre: Fiambre) => {
     selectFiambre(fiambre);

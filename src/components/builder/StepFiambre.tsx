@@ -115,14 +115,14 @@ export const StepFiambre: React.FC<StepFiambreProps> = ({
         })}
       </div>
 
-      {/* Grid de Fiambres (4 Columnas en Desktop) */}
+      {/* Grid de Fiambres (2 Columnas en Celular, 4 en Desktop) */}
       {filteredFiambres.length === 0 ? (
         <div className="text-center py-12 bg-stone-50 rounded-2xl border border-dashed border-stone-300 p-6">
           <p className="text-sm font-semibold text-stone-800">No se encontraron fiambres</p>
           <p className="text-xs text-stone-500 mt-1">Probá con otro término de búsqueda.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4 lg:gap-5">
           {filteredFiambres.map((fiambre) => {
             const isSelected = selectedFiambre?.id === fiambre.id;
 
@@ -132,7 +132,7 @@ export const StepFiambre: React.FC<StepFiambreProps> = ({
                 whileHover={{ y: -3 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => onSelect(fiambre)}
-                className={`group relative flex flex-col justify-between p-3.5 sm:p-4 rounded-2xl cursor-pointer transition-all border select-none overflow-hidden ${
+                className={`group relative flex flex-col justify-between p-2.5 sm:p-4 rounded-xl sm:rounded-2xl cursor-pointer transition-all border select-none overflow-hidden ${
                   isSelected
                     ? 'bg-white border-2 border-[#781D22] shadow-md ring-2 sm:ring-4 ring-red-900/10'
                     : 'bg-white border-stone-200/90 hover:border-amber-700/50 hover:shadow-md'
@@ -140,7 +140,7 @@ export const StepFiambre: React.FC<StepFiambreProps> = ({
               >
                 {/* Imagen y Badges */}
                 <div>
-                  <div className="relative aspect-[16/10] rounded-xl overflow-hidden bg-stone-100 mb-3">
+                  <div className="relative aspect-[16/11] sm:aspect-[16/10] rounded-lg sm:rounded-xl overflow-hidden bg-stone-100 mb-2 sm:mb-3">
                     <img
                       src={fiambre.image}
                       alt={fiambre.name}
@@ -148,42 +148,42 @@ export const StepFiambre: React.FC<StepFiambreProps> = ({
                       loading="lazy"
                     />
                     {fiambre.badge && (
-                      <div className="absolute top-2 left-2">
+                      <div className="absolute top-1.5 left-1.5 sm:top-2 sm:left-2 scale-[0.75] sm:scale-100 origin-top-left">
                         {renderBadge(fiambre.badge)}
                       </div>
                     )}
                     {isSelected && (
-                      <div className="absolute top-2 right-2 w-7 h-7 rounded-full bg-[#781D22] text-white flex items-center justify-center shadow-md animate-in fade-in zoom-in duration-200">
-                        <Check className="w-4 h-4 stroke-[3]" />
+                      <div className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 w-5 h-5 sm:w-7 sm:h-7 rounded-full bg-[#781D22] text-white flex items-center justify-center shadow-md animate-in fade-in zoom-in duration-200">
+                        <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[3]" />
                       </div>
                     )}
                   </div>
 
                   {/* Contenido */}
                   <div>
-                    <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block mb-0.5">
+                    <span className="text-[8px] sm:text-[10px] font-bold text-stone-400 uppercase tracking-wider block mb-0.5 truncate">
                       {fiambre.category}
                     </span>
-                    <h4 className="font-serif font-bold text-base text-stone-900 leading-tight">
+                    <h4 className="font-serif font-bold text-xs sm:text-base text-stone-900 leading-tight line-clamp-1 sm:line-clamp-none">
                       {fiambre.name}
                     </h4>
-                    <p className="text-xs text-stone-500 line-clamp-2 mt-1 leading-relaxed">
+                    <p className="text-[10px] sm:text-xs text-stone-500 line-clamp-2 mt-0.5 sm:mt-1 leading-snug">
                       {fiambre.description}
                     </p>
                   </div>
                 </div>
 
                 {/* Precio Base y Botón Elegir */}
-                <div className="mt-3.5 pt-2.5 border-t border-stone-100 flex items-center justify-between">
+                <div className="mt-2.5 sm:mt-3.5 pt-1.5 sm:pt-2.5 border-t border-stone-100 flex items-center justify-between gap-1">
                   <div>
-                    <span className="text-[11px] font-semibold text-stone-400 block leading-tight">Desde</span>
-                    <span className="font-serif font-bold text-base text-stone-900 leading-tight">
+                    <span className="text-[9px] sm:text-[11px] font-semibold text-stone-400 block leading-tight">Desde</span>
+                    <span className="font-serif font-bold text-xs sm:text-base text-stone-900 leading-tight">
                       {formatCurrency(fiambre.basePriceMin)}
                     </span>
                   </div>
 
                   <div
-                    className={`inline-flex items-center gap-1 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all shadow-xs ${
+                    className={`inline-flex items-center gap-0.5 sm:gap-1 px-2.5 py-1 sm:px-3.5 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-bold transition-all shadow-xs shrink-0 ${
                       isSelected
                         ? 'bg-emerald-700 text-white'
                         : 'bg-[#781D22] text-white group-hover:bg-[#60161a]'
@@ -191,9 +191,9 @@ export const StepFiambre: React.FC<StepFiambreProps> = ({
                   >
                     <span>{isSelected ? 'Elegido' : 'Elegir'}</span>
                     {isSelected ? (
-                      <Check className="w-3.5 h-3.5 stroke-[3]" />
+                      <Check className="w-3 h-3 sm:w-3.5 sm:h-3.5 stroke-[3]" />
                     ) : (
-                      <ArrowRight className="w-3 h-3" />
+                      <ArrowRight className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                     )}
                   </div>
                 </div>

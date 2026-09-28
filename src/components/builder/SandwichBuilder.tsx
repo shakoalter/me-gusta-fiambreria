@@ -124,19 +124,19 @@ export const SandwichBuilder: React.FC = () => {
     <section
       id="builder-section"
       ref={builderContainerRef}
-      className="relative w-full py-10 sm:py-16 scroll-mt-24 bg-cover bg-top bg-no-repeat overflow-hidden border-t border-stone-300/30"
+      className="relative w-full py-6 sm:py-16 scroll-mt-24 bg-cover bg-top bg-no-repeat overflow-hidden border-t border-stone-300/30"
       style={{ backgroundImage: "url('/images/builder-bg.png')" }}
     >
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 relative z-10">
+      <div className="max-w-7xl mx-auto px-2.5 sm:px-6 lg:px-8 relative z-10">
         {/* Encabezado Paso a Paso + Bodegón de Charcuterie */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 items-center mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-10 items-center mb-6 sm:mb-8">
           
           {/* Columna Izquierda: Título y Stepper */}
-          <div className="lg:col-span-7 space-y-2.5">
-            <span className="text-xs font-black uppercase tracking-[0.2em] text-[#781D22]">
+          <div className="lg:col-span-7 space-y-2">
+            <span className="text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] text-[#781D22]">
               — PASO A PASO —
             </span>
-            <h2 className="font-serif text-3xl sm:text-4xl lg:text-[44px] font-extrabold text-stone-900 tracking-tight leading-[1.15]">
+            <h2 className="font-serif text-2xl sm:text-4xl lg:text-[44px] font-extrabold text-stone-900 tracking-tight leading-[1.15]">
               Armá tu Sándwich Gourmet
             </h2>
             <p className="text-xs sm:text-sm text-stone-600 font-normal leading-relaxed">
@@ -176,7 +176,7 @@ export const SandwichBuilder: React.FC = () => {
         </div>
 
         {/* Tarjeta Contenedora Principal de los Pasos */}
-        <div className="bg-white/95 backdrop-blur-xs rounded-2xl sm:rounded-3xl p-3.5 sm:p-8 border border-stone-200/90 shadow-md">
+        <div className="bg-white/95 backdrop-blur-xs rounded-2xl sm:rounded-3xl p-2.5 sm:p-8 border border-stone-200/90 shadow-md">
           {currentStep === 1 && (
             <StepFiambre
               selectedFiambre={selectedFiambre}

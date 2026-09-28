@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Utensils, ArrowRight, MousePointerClick } from 'lucide-react';
+import { Sparkles, Utensils, ArrowRight, MousePointerClick, Megaphone } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
+import { DAILY_OFFER_CONFIG } from '../../data/dailyOffer';
 import { DailyOfferModal } from '../promo/DailyOfferModal';
 
 export const Hero: React.FC = () => {
@@ -109,27 +110,15 @@ export const Hero: React.FC = () => {
               </div>
             </motion.div>
 
-            {/* Columna Derecha: Composición Visual Gastronómica / Tarjeta Oferta del Día */}
+            {/* Columna Derecha: Tarjeta Promocional Oferta del Día */}
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.6, delay: 0.15 }}
-              className="lg:col-span-6 relative flex items-center justify-center"
+              className="lg:col-span-6 relative flex items-center justify-center w-full"
             >
-              <div className="relative w-full max-w-lg lg:max-w-none">
-                
-                {/* Sello Vintage Circular: Ingredientes de Primera */}
-                <div className="absolute -top-4 -right-2 sm:-top-6 sm:right-2 z-20 w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-[#1C1917]/90 text-amber-300 border-2 border-dashed border-amber-400/80 shadow-2xl flex flex-col items-center justify-center text-center p-1.5 backdrop-blur-xs transform rotate-6 pointer-events-none">
-                  <span className="text-[14px]">🌿</span>
-                  <span className="text-[9px] sm:text-[10px] font-extrabold uppercase tracking-tight leading-tight text-white mt-0.5">
-                    Ingredientes
-                  </span>
-                  <span className="text-[8px] sm:text-[9px] font-bold text-amber-400 uppercase tracking-widest leading-tight">
-                    De Primera
-                  </span>
-                </div>
-
-                {/* Tarjeta de Fotografía Principal - Interactiva (Abre Modal de Oferta) */}
+              <div className="relative w-full max-w-lg lg:max-w-xl mx-auto">
+                {/* Tarjeta de Oferta - Todo el contenedor es interactivo */}
                 <motion.div
                   role="button"
                   tabIndex={0}
@@ -140,42 +129,133 @@ export const Hero: React.FC = () => {
                       setIsOfferModalOpen(true);
                     }
                   }}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
+                  whileHover={{ scale: 1.015 }}
+                  whileTap={{ scale: 0.985 }}
                   aria-label="Ver y personalizar la Oferta del Día"
-                  className="relative rounded-2xl overflow-hidden border-2 border-amber-400/40 hover:border-amber-400/80 shadow-2xl bg-stone-900 group cursor-pointer transition-all duration-300 focus:outline-hidden focus:ring-4 focus:ring-amber-400/50"
+                  className="relative w-full rounded-[2rem] overflow-hidden border-[3.5px] sm:border-4 border-[#F5A623] bg-[#120C08] shadow-[0_22px_55px_rgba(0,0,0,0.85),0_0_30px_rgba(245,166,35,0.22)] group cursor-pointer transition-all duration-300 focus:outline-hidden focus:ring-4 focus:ring-amber-400/60 select-none flex flex-col"
                 >
-                  <div className="aspect-[16/10] sm:aspect-[16/10] w-full overflow-hidden">
+                  {/* FOTOGRAFÍA SUPERIOR DEL PRODUCTO */}
+                  <div className="relative w-full aspect-[16/10] sm:aspect-[16/9.5] overflow-hidden bg-stone-950 border-b-2 border-amber-500/20">
                     <img
-                      src="/images/hero-sandwich.jpg"
-                      alt="Sándwich gourmet artesanal preparado con fiambres seleccionados"
-                      className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700"
+                      src={DAILY_OFFER_CONFIG.image}
+                      alt={DAILY_OFFER_CONFIG.title}
+                      className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700 ease-out"
                       loading="eager"
                     />
-                  </div>
 
-                  {/* Gradiente oscuro inferior para texto */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-transparent pointer-events-none" />
+                    {/* Gradiente sutil para profundidad */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20 pointer-events-none" />
 
-                  {/* Badge, Leyenda y Callout sobre la foto */}
-                  <div className="absolute bottom-4 left-4 right-4 text-white">
-                    <div className="flex items-center justify-between gap-2 mb-1.5">
-                      <span className="inline-flex items-center gap-1 bg-[#E5A83B] text-stone-950 text-[10px] sm:text-[11px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-md shadow-sm">
-                        <Sparkles className="w-3 h-3 text-stone-950" />
-                        <span>PROMO DEL DÍA</span>
+                    {/* INSIGNIA «OFERTA DEL DÍA» (Cinta Amarilla Superior Izquierda) */}
+                    <div className="absolute top-3 left-3 sm:top-4 sm:left-4 z-20">
+                      <div className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-xl bg-[#F5A623] text-stone-950 text-xs sm:text-sm font-black uppercase tracking-wider shadow-2xl border border-yellow-300/70 transform -rotate-2 group-hover:rotate-0 transition-transform duration-300">
+                        <Megaphone className="w-4 h-4 sm:w-4.5 sm:h-4.5 fill-stone-950 stroke-stone-950 stroke-[2.5]" />
+                        <span>{DAILY_OFFER_CONFIG.badge}</span>
+                      </div>
+                    </div>
+
+                    {/* INSIGNIA «INGREDIENTES DE PRIMERA» (Sello Circular Superior Derecho) */}
+                    <div className="absolute top-3 right-3 sm:top-4 sm:right-4 z-20 w-18 h-18 sm:w-22 sm:h-22 rounded-full bg-[#18120C]/95 text-amber-300 border-2 border-dashed border-[#F5A623] shadow-2xl flex flex-col items-center justify-center text-center p-1.5 backdrop-blur-xs transform rotate-6 group-hover:rotate-12 transition-transform duration-300 pointer-events-none">
+                      <span className="text-sm sm:text-base leading-none">🌿</span>
+                      <span className="text-[8px] sm:text-[9.5px] font-black uppercase tracking-tight leading-tight text-white mt-1">
+                        Ingredientes
                       </span>
-
-                      <span className="hidden sm:inline-flex items-center gap-1 bg-black/60 backdrop-blur-xs text-amber-200 text-[10px] font-bold px-2 py-0.5 rounded-full border border-amber-400/30">
-                        <MousePointerClick className="w-3 h-3 text-amber-300" />
-                        <span>Clic para ver combo</span>
+                      <span className="text-[7px] sm:text-[8.5px] font-extrabold text-[#F5A623] uppercase tracking-widest leading-tight">
+                        De Primera
                       </span>
                     </div>
-                    <p className="font-serif text-base sm:text-lg font-bold text-white leading-tight drop-shadow-sm group-hover:text-amber-200 transition-colors">
-                      Un sándwich diferente todos los días + bebida a elección (500cc / 600cc)
-                    </p>
+                  </div>
+
+                  {/* SECTOR INFERIOR DE INFORMACIÓN Y LLAMADO A LA ACCIÓN */}
+                  <div className="p-5 sm:p-6 bg-[#120C08] text-white flex flex-col space-y-3.5 sm:space-y-4">
+                    {/* Título y Descripción Dinámica */}
+                    <div className="space-y-1 text-left">
+                      <h3 className="font-serif text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-tight group-hover:text-amber-300 transition-colors">
+                        {DAILY_OFFER_CONFIG.title}
+                      </h3>
+                      <p className="text-xs sm:text-sm text-stone-300 font-normal leading-relaxed">
+                        {DAILY_OFFER_CONFIG.description}
+                      </p>
+                    </div>
+
+                    {/* FILA DE INTERACCIÓN: Botón + Indicador «¡Tocá la imagen y descubrilo!» */}
+                    <div className="pt-1 flex flex-wrap items-center justify-between gap-3 relative">
+                      {/* Botón Principal «Ver más detalles» */}
+                      <div className="inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 rounded-full bg-[#F5A623] group-hover:bg-[#f8b438] text-stone-950 font-extrabold text-xs sm:text-sm shadow-xl transition-all duration-300 transform group-hover:translate-x-0.5 shrink-0">
+                        <MousePointerClick className="w-4 h-4 stroke-[2.5]" />
+                        <span>Ver más detalles</span>
+                        <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+                      </div>
+
+                      {/* Indicador con flecha curva y mano interactiva */}
+                      <div className="flex items-center gap-1.5 sm:gap-2 ml-auto">
+                        {/* Flecha curva dibujada en SVG apuntando hacia la imagen */}
+                        <svg
+                          className="w-8 h-8 sm:w-10 sm:h-10 text-[#F5A623] shrink-0 -rotate-12"
+                          viewBox="0 0 40 40"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          aria-hidden="true"
+                        >
+                          <path d="M 32 32 C 20 34 10 26 12 10" />
+                          <path d="M 6 16 L 12 10 L 18 16" />
+                        </svg>
+
+                        <div className="flex flex-col items-start leading-none text-[#F5A623] drop-shadow-md select-none">
+                          <span className="font-handwriting text-base sm:text-xl font-bold whitespace-nowrap rotate-[-3deg]">
+                            ¡Tocá la imagen
+                          </span>
+                          <span className="font-handwriting text-base sm:text-xl font-bold whitespace-nowrap rotate-[-3deg]">
+                            y descubrilo!
+                          </span>
+                        </div>
+
+                        {/* Icono de cursor táctil / mano con ondas */}
+                        <div 
+                          className="relative w-8 h-8 sm:w-9 sm:h-9 text-white shrink-0 ml-0.5 filter drop-shadow-[0_2px_8px_rgba(245,166,35,0.8)]"
+                          aria-hidden="true"
+                        >
+                          <svg
+                            className="w-full h-full text-white"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            {/* Rayos / ondas de click */}
+                            <path d="M12 2v2.5" className="stroke-amber-400 stroke-[2.5]" />
+                            <path d="M5.5 5.5l1.8 1.8" className="stroke-amber-400 stroke-[2.5]" />
+                            <path d="M2 12h2.5" className="stroke-amber-400 stroke-[2.5]" />
+                            {/* Puntero de mano */}
+                            <path
+                              d="M10 13V6a2 2 0 0 1 4 0v5"
+                              fill="#FFFFFF"
+                              stroke="#1C1917"
+                              strokeWidth="1.8"
+                            />
+                            <path
+                              d="M14 10.5a2 2 0 0 1 4 0V12"
+                              fill="#FFFFFF"
+                              stroke="#1C1917"
+                              strokeWidth="1.8"
+                            />
+                            <path
+                              d="M18 11.5a2 2 0 0 1 4 0V15a7 7 0 0 1-7 7h-2a7 7 0 0 1-5.6-2.8L6 17.5a1.5 1.5 0 0 1 2.3-1.9L10 17"
+                              fill="#FFFFFF"
+                              stroke="#1C1917"
+                              strokeWidth="1.8"
+                            />
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </motion.div>
-
               </div>
             </motion.div>
 

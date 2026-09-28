@@ -1,10 +1,9 @@
 import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Check, Search, Sparkles, ArrowRight } from 'lucide-react';
+import { Check, Search, ArrowRight } from 'lucide-react';
 import { FIAMBRES_DATA } from '../../data/fiambres';
 import { Fiambre, FiambreCategory } from '../../types/product';
-import { Badge } from '../common/Badge';
-import { PriceTag } from '../common/PriceTag';
+import { formatCurrency } from '../../utils/formatters';
 
 interface StepFiambreProps {
   selectedFiambre: Fiambre | null;
@@ -18,6 +17,24 @@ const CATEGORIES: ('Todos' | FiambreCategory)[] = [
   'Especiales',
   'Curados & Ahumados',
 ];
+
+const renderBadge = (badgeText?: string) => {
+  if (!badgeText) return null;
+  const lower = badgeText.toLowerCase();
+  let icon = '⭐';
+  if (lower.includes('natural') || lower.includes('aromático') || lower.includes('hierbas')) icon = '🍃';
+  else if (lower.includes('tradicional')) icon = '✨';
+  else if (lower.includes('español')) icon = '🇪🇸';
+  else if (lower.includes('casero')) icon = '🏡';
+  else if (lower.includes('ahumado')) icon = '🪵';
+
+  return (
+    <span className="bg-[#FFF9EE]/95 text-[#8C5D23] border border-[#ECD8B8] font-bold text-[9px] sm:text-[10px] tracking-wider uppercase px-2.5 py-0.5 rounded-full shadow-xs inline-flex items-center gap-1 backdrop-blur-xs">
+      <span>{icon}</span>
+      <span>{badgeText}</span>
+    </span>
+  );
+};
 
 export const StepFiambre: React.FC<StepFiambreProps> = ({
   selectedFiambre,
@@ -44,11 +61,11 @@ export const StepFiambre: React.FC<StepFiambreProps> = ({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-stone-100">
         <div>
           <div className="inline-flex items-center gap-2 mb-2">
-            <span className="bg-[#781D22] text-white text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider px-3 py-0.5 rounded-full shadow-xs">
+            <span className="bg-[#781D22] text-white text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider px-3.5 py-1 rounded-full shadow-xs">
               Paso 1 de 3 • Obligatorio
             </span>
           </div>
-          <h3 className="font-serif text-2xl sm:text-3xl font-extrabold text-gourmet-dark tracking-tight">
+          <h3 className="font-serif text-2xl sm:text-3xl font-extrabold text-stone-900 tracking-tight">
             Elegí tu Fiambre
           </h3>
           <p className="text-xs sm:text-sm text-stone-500 font-normal mt-0.5">
@@ -89,7 +106,7 @@ export const StepFiambre: React.FC<StepFiambreProps> = ({
               className={`px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all focus:outline-none cursor-pointer ${
                 isActive
                   ? 'bg-[#781D22] text-white shadow-xs'
-                  : 'bg-stone-100 hover:bg-stone-200/80 text-stone-700'
+                  : 'bg-[#FAF4EC] hover:bg-[#F3E8DA] text-stone-700 border border-stone-200/70'
               }`}
             >
               {cat}
@@ -98,14 +115,14 @@ export const StepFiambre: React.FC<StepFiambreProps> = ({
         })}
       </div>
 
-      {/* Grid de Fiambres */}
+      {/* Grid de Fiambres (4 Columnas en Desktop) */}
       {filteredFiambres.length === 0 ? (
         <div className="text-center py-12 bg-stone-50 rounded-2xl border border-dashed border-stone-300 p-6">
-          <p className="text-sm font-semibold text-gourmet-dark">No se encontraron fiambres</p>
-          <p className="text-xs text-gourmet-muted mt-1">Probá con otro término de búsqueda.</p>
+          <p className="text-sm font-semibold text-stone-800">No se encontraron fiambres</p>
+          <p className="text-xs text-stone-500 mt-1">Probá con otro término de búsqueda.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2.5 sm:gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
           {filteredFiambres.map((fiambre) => {
             const isSelected = selectedFiambre?.id === fiambre.id;
 
@@ -115,60 +132,70 @@ export const StepFiambre: React.FC<StepFiambreProps> = ({
                 whileHover={{ y: -3 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => onSelect(fiambre)}
-                className={`relative flex flex-col justify-between p-2.5 sm:p-4 rounded-xl sm:rounded-2xl cursor-pointer transition-all border-2 select-none overflow-hidden ${
+                className={`group relative flex flex-col justify-between p-3.5 sm:p-4 rounded-2xl cursor-pointer transition-all border select-none overflow-hidden ${
                   isSelected
-                    ? 'bg-white border-[#781D22] shadow-md ring-2 sm:ring-4 ring-red-900/10'
-                    : 'bg-white border-stone-200 hover:border-amber-700/50 hover:shadow-xs'
+                    ? 'bg-white border-2 border-[#781D22] shadow-md ring-2 sm:ring-4 ring-red-900/10'
+                    : 'bg-white border-stone-200/90 hover:border-amber-700/50 hover:shadow-md'
                 }`}
               >
                 {/* Imagen y Badges */}
-                <div className="relative aspect-[16/11] sm:aspect-[16/10] rounded-lg sm:rounded-xl overflow-hidden bg-stone-100 mb-2 sm:mb-3">
-                  <img
-                    src={fiambre.image}
-                    alt={fiambre.name}
-                    className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-300"
-                    loading="lazy"
-                  />
-                  {fiambre.badge && (
-                    <div className="absolute top-1.5 left-1.5 sm:top-2 sm:left-2 scale-75 sm:scale-100 origin-top-left">
-                      <Badge variant="mustard" size="sm">
-                        <Sparkles className="w-3 h-3 mr-1 inline" />
-                        {fiambre.badge}
-                      </Badge>
-                    </div>
-                  )}
-                  {isSelected && (
-                    <div className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 w-5 h-5 sm:w-7 sm:h-7 rounded-full bg-[#781D22] text-white flex items-center justify-center shadow-md animate-in fade-in zoom-in duration-200">
-                      <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[3]" />
-                    </div>
-                  )}
-                </div>
-
-                {/* Contenido */}
                 <div>
-                  <div className="flex items-center justify-between gap-1 mb-0.5 sm:mb-1">
-                    <span className="text-[9px] sm:text-[10px] font-bold text-stone-400 uppercase tracking-wider">
+                  <div className="relative aspect-[16/10] rounded-xl overflow-hidden bg-stone-100 mb-3">
+                    <img
+                      src={fiambre.image}
+                      alt={fiambre.name}
+                      className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-300"
+                      loading="lazy"
+                    />
+                    {fiambre.badge && (
+                      <div className="absolute top-2 left-2">
+                        {renderBadge(fiambre.badge)}
+                      </div>
+                    )}
+                    {isSelected && (
+                      <div className="absolute top-2 right-2 w-7 h-7 rounded-full bg-[#781D22] text-white flex items-center justify-center shadow-md animate-in fade-in zoom-in duration-200">
+                        <Check className="w-4 h-4 stroke-[3]" />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Contenido */}
+                  <div>
+                    <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block mb-0.5">
                       {fiambre.category}
                     </span>
+                    <h4 className="font-serif font-bold text-base text-stone-900 leading-tight">
+                      {fiambre.name}
+                    </h4>
+                    <p className="text-xs text-stone-500 line-clamp-2 mt-1 leading-relaxed">
+                      {fiambre.description}
+                    </p>
                   </div>
-                  <h4 className="font-serif font-bold text-xs sm:text-base text-gourmet-dark leading-tight line-clamp-1 sm:line-clamp-none">
-                    {fiambre.name}
-                  </h4>
-                  <p className="text-[10px] sm:text-xs text-gourmet-muted line-clamp-1 sm:line-clamp-2 mt-0.5 sm:mt-1 leading-snug">
-                    {fiambre.description}
-                  </p>
                 </div>
 
-                {/* Precio Base */}
-                <div className="mt-2 sm:mt-3 pt-1.5 sm:pt-2.5 border-t border-stone-100 flex items-center justify-between">
-                  <PriceTag amount={fiambre.basePriceMin} prefix="Desde" size="sm" highlight={isSelected} />
-                  <span
-                    className={`text-[10px] sm:text-xs font-bold ${
-                      isSelected ? 'text-[#781D22]' : 'text-stone-400'
+                {/* Precio Base y Botón Elegir */}
+                <div className="mt-3.5 pt-2.5 border-t border-stone-100 flex items-center justify-between">
+                  <div>
+                    <span className="text-[11px] font-semibold text-stone-400 block leading-tight">Desde</span>
+                    <span className="font-serif font-bold text-base text-stone-900 leading-tight">
+                      {formatCurrency(fiambre.basePriceMin)}
+                    </span>
+                  </div>
+
+                  <div
+                    className={`inline-flex items-center gap-1 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all shadow-xs ${
+                      isSelected
+                        ? 'bg-emerald-700 text-white'
+                        : 'bg-[#781D22] text-white group-hover:bg-[#60161a]'
                     }`}
                   >
-                    {isSelected ? 'Elegido' : 'Elegir'}
-                  </span>
+                    <span>{isSelected ? 'Elegido' : 'Elegir'}</span>
+                    {isSelected ? (
+                      <Check className="w-3.5 h-3.5 stroke-[3]" />
+                    ) : (
+                      <ArrowRight className="w-3 h-3" />
+                    )}
+                  </div>
                 </div>
               </motion.div>
             );
@@ -195,10 +222,9 @@ export const StepFiambre: React.FC<StepFiambreProps> = ({
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
             onClick={onNextStep}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-full bg-[#781D22] hover:bg-[#63171b] text-white text-xs font-bold shadow-md cursor-pointer transition-all"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-full bg-[#781D22] hover:bg-[#60161a] text-white text-xs font-bold shadow-md cursor-pointer transition-all"
           >
-            <span>Completar Fiambre + Queso</span>
-            <ArrowRight className="w-3.5 h-3.5" />
+            <span>→ Completar Fiambre + Queso</span>
           </motion.button>
         )}
       </div>

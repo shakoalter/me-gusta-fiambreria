@@ -1,4 +1,4 @@
-import { Fiambre, Queso, Bebida, Extra, Aderezo } from '../types/product';
+import { Fiambre, Queso, Bebida, Extra, Aderezo, FiambreId, QuesoId, BebidaId } from '../types/product';
 import { FIAMBRES_DATA } from './fiambres';
 import { QUESOS_DATA } from './quesos';
 import { BEBIDAS_DATA } from './bebidas';
@@ -12,11 +12,11 @@ export interface DailyOfferConfig {
   subtitle: string;
   description: string;
   image: string;
-  fiambreId: string;
-  quesoId: string;
-  defaultBebidaId: string;
-  // Precio promocional combo (Sándwich base + Bebida 500/600cc incluidos)
-  promoBasePrice: number;
+  fiambreId: FiambreId;
+  quesoId: QuesoId;
+  defaultBebidaId: BebidaId;
+  // Porcentaje de descuento aplicado al combo base (ej: 0.10 = 10% OFF)
+  discountPercentage: number;
 }
 
 export const DAILY_OFFER_CONFIG: DailyOfferConfig = {
@@ -29,7 +29,7 @@ export const DAILY_OFFER_CONFIG: DailyOfferConfig = {
   fiambreId: 'salame',
   quesoId: 'queso-clasico',
   defaultBebidaId: 'coca-cola-600',
-  promoBasePrice: 6200, // Precio promocional especial del combo diario
+  discountPercentage: 0.10,
 };
 
 /**

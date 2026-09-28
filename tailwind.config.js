@@ -8,7 +8,7 @@ export default {
     extend: {
       colors: {
         gourmet: {
-          bg: '#FAF6F0',
+          bg: '#e6aa77',
           surface: '#F4EFE6',
           surfaceHover: '#EBE3D5',
           card: '#FFFFFF',
@@ -35,6 +35,7 @@ export default {
       fontFamily: {
         serif: ['"Playfair Display"', 'Georgia', 'serif'],
         sans: ['"Plus Jakarta Sans"', 'system-ui', '-apple-system', 'sans-serif'],
+        handwriting: ['"Caveat"', 'cursive', 'sans-serif'],
       },
       boxShadow: {
         'gourmet-sm': '0 2px 8px -2px rgba(120, 29, 34, 0.06), 0 1px 4px -1px rgba(0, 0, 0, 0.04)',

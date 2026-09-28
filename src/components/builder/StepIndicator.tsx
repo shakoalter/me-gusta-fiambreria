@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Check, Beef, Layers, Sparkles } from 'lucide-react';
+import { Check, Beef, Layers, Plus } from 'lucide-react';
 
 interface StepIndicatorProps {
   currentStep: number;
@@ -45,14 +45,14 @@ export const StepIndicator: React.FC<StepIndicatorProps> = ({
       number: 3,
       label: '3. Aderezos & Extras',
       sublabel: 'Opcional',
-      icon: <Sparkles className="w-4 h-4" />,
+      icon: <Plus className="w-4 h-4 stroke-[2.5]" />,
       isCompleted: false,
       isUnlocked: hasFiambre && hasQueso,
     },
   ];
 
   return (
-    <div className="w-full pt-4">
+    <div className="w-full pt-3">
       <div className="flex items-center justify-between gap-2 max-w-xl">
         {steps.map((step, index) => {
           const isActive = currentStep === step.number;
@@ -68,14 +68,14 @@ export const StepIndicator: React.FC<StepIndicatorProps> = ({
                   !step.isUnlocked ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'
                 }`}
               >
-                {/* Círculo indicador con icono */}
+                {/* Círculo indicador */}
                 <div
                   className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-xs font-bold transition-all shadow-xs shrink-0 ${
                     isActive
                       ? 'bg-[#781D22] text-white ring-4 ring-red-900/15 scale-105 shadow-md'
                       : isDone
-                      ? 'bg-emerald-600 text-white'
-                      : 'bg-white border border-stone-300 text-stone-500'
+                      ? 'bg-emerald-700 text-white shadow-xs'
+                      : 'bg-[#FAF4EC] border border-[#E5D7C5] text-stone-600'
                   }`}
                 >
                   {isDone ? <Check className="w-4 h-4 stroke-[3]" /> : step.icon}
@@ -86,10 +86,10 @@ export const StepIndicator: React.FC<StepIndicatorProps> = ({
                   <p
                     className={`text-xs sm:text-sm font-bold leading-tight ${
                       isActive
-                        ? 'text-gourmet-dark'
+                        ? 'text-stone-900'
                         : isDone
                         ? 'text-emerald-800'
-                        : 'text-stone-600'
+                        : 'text-stone-700 font-semibold'
                     }`}
                   >
                     {step.label}
@@ -102,7 +102,7 @@ export const StepIndicator: React.FC<StepIndicatorProps> = ({
 
               {/* Conector lineal */}
               {index < steps.length - 1 && (
-                <div className="flex-1 mx-2 sm:mx-3 h-0.5 bg-stone-200 relative overflow-hidden rounded-full">
+                <div className="flex-1 mx-2 sm:mx-3 h-0.5 bg-stone-200/80 relative overflow-hidden rounded-full">
                   <motion.div
                     className="absolute inset-y-0 left-0 bg-[#781D22]"
                     initial={false}

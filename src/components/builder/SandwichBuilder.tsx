@@ -124,119 +124,122 @@ export const SandwichBuilder: React.FC = () => {
     <section
       id="builder-section"
       ref={builderContainerRef}
-      className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-8 pb-16 scroll-mt-24"
+      className="relative w-full py-10 sm:py-16 scroll-mt-24 bg-cover bg-top bg-no-repeat overflow-hidden border-t border-stone-300/30"
+      style={{ backgroundImage: "url('/images/builder-bg.png')" }}
     >
-      {/* Encabezado Paso a Paso + Bodegón de Charcuterie */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 items-center mb-8">
-        
-        {/* Columna Izquierda: Título y Stepper */}
-        <div className="lg:col-span-7 space-y-3">
-          <span className="text-xs font-extrabold uppercase tracking-widest text-[#781D22]">
-            Paso a Paso
-          </span>
-          <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-extrabold text-gourmet-dark tracking-tight leading-tight">
-            Armá tu Sándwich Gourmet
-          </h2>
-          <p className="text-xs sm:text-sm text-stone-600 font-medium leading-relaxed">
-            Elegí Fiambre + Queso. Los extras y aderezos son opcionales a tu gusto.
-          </p>
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 relative z-10">
+        {/* Encabezado Paso a Paso + Bodegón de Charcuterie */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 items-center mb-8">
+          
+          {/* Columna Izquierda: Título y Stepper */}
+          <div className="lg:col-span-7 space-y-2.5">
+            <span className="text-xs font-black uppercase tracking-[0.2em] text-[#781D22]">
+              — PASO A PASO —
+            </span>
+            <h2 className="font-serif text-3xl sm:text-4xl lg:text-[44px] font-extrabold text-stone-900 tracking-tight leading-[1.15]">
+              Armá tu Sándwich Gourmet
+            </h2>
+            <p className="text-xs sm:text-sm text-stone-600 font-normal leading-relaxed">
+              Elegí Fiambre + Queso. Los extras y aderezos son opcionales, a tu gusto.
+            </p>
 
-          {/* Indicador de Pasos */}
-          <StepIndicator
-            currentStep={currentStep}
-            hasFiambre={Boolean(selectedFiambre)}
-            hasQueso={Boolean(selectedQueso)}
-            onStepClick={(step) => setCurrentStep(step)}
-          />
-        </div>
+            {/* Indicador de Pasos */}
+            <StepIndicator
+              currentStep={currentStep}
+              hasFiambre={Boolean(selectedFiambre)}
+              hasQueso={Boolean(selectedQueso)}
+              onStepClick={(step) => setCurrentStep(step)}
+            />
+          </div>
 
-        {/* Columna Derecha: Frase Manuscrita + Bodegón Gastronómico */}
-        <div className="hidden lg:flex lg:col-span-5 items-center justify-end relative">
-          <div className="relative">
-            {/* Frase manuscrita inclinada */}
-            <div className="absolute -top-3.5 -left-10 z-10 text-stone-800 transform -rotate-12 font-serif italic text-sm font-bold tracking-wide">
-              <span>Tu sándwich,</span><br />
-              <span className="text-[#781D22]">como lo querés</span>
-            </div>
+          {/* Columna Derecha: Frase Manuscrita + Medallón del Logo Oficial */}
+          <div className="hidden lg:flex lg:col-span-5 items-center justify-end relative">
+            <div className="relative flex items-center gap-5">
+              {/* Frase manuscrita inclinada */}
+              <div className="text-right text-stone-900 transform -rotate-6 font-handwriting text-2xl lg:text-3xl font-bold tracking-wide select-none drop-shadow-xs">
+                <span className="text-stone-900">Tu sándwich,</span><br />
+                <span className="text-[#781D22]">como lo querés</span>
+              </div>
 
-            {/* Imagen del bodegón de fiambres y quesos */}
-            <div className="relative rounded-2xl overflow-hidden shadow-md border border-stone-200/80 bg-white p-1 max-w-sm">
-              <img
-                src="/images/bodegon-charcuterie.jpg"
-                alt="Tabla de fiambres artesanales, quesos seleccionados y vegetales frescos"
-                className="w-full h-44 object-cover rounded-xl"
-                loading="lazy"
-              />
+              {/* Medallón del Logo Oficial con Sombra y Elevación Directa */}
+              <div className="relative group shrink-0">
+                <img
+                  src="/images/logo-me-gusta.png"
+                  alt="Logo oficial de Fiambrería Me Gusta"
+                  className="w-36 h-36 sm:w-40 sm:h-40 lg:w-44 lg:h-44 object-contain rounded-full filter drop-shadow-[0_16px_28px_rgba(42,21,14,0.45)] transition-all duration-300 transform group-hover:scale-105 group-hover:drop-shadow-[0_22px_36px_rgba(42,21,14,0.6)]"
+                  loading="lazy"
+                />
+              </div>
             </div>
           </div>
+
         </div>
 
+        {/* Tarjeta Contenedora Principal de los Pasos */}
+        <div className="bg-white/95 backdrop-blur-xs rounded-2xl sm:rounded-3xl p-3.5 sm:p-8 border border-stone-200/90 shadow-md">
+          {currentStep === 1 && (
+            <StepFiambre
+              selectedFiambre={selectedFiambre}
+              onSelect={handleFiambreSelect}
+              onNextStep={() => selectedFiambre && setCurrentStep(2)}
+            />
+          )}
+
+          {currentStep === 2 && (
+            <StepQueso
+              selectedFiambre={selectedFiambre}
+              selectedQueso={selectedQueso}
+              onSelect={handleQuesoSelect}
+              onGoToFiambreStep={() => setCurrentStep(1)}
+              onNextStep={() => selectedQueso && setCurrentStep(3)}
+            />
+          )}
+
+          {currentStep === 3 && (
+            <StepExtras
+              selectedExtras={selectedExtras}
+              onToggleExtra={toggleExtra}
+              isExtraSelected={isExtraSelected}
+              onClearExtras={clearExtras}
+              selectedAderezos={selectedAderezos}
+              onToggleAderezo={toggleAderezo}
+              isAderezoSelected={isAderezoSelected}
+              onClearAderezos={clearAderezos}
+              selectedBebidas={selectedBebidas}
+              onToggleBebida={toggleBebida}
+              isBebidaSelected={isBebidaSelected}
+              onClearBebidas={clearBebidas}
+            />
+          )}
+        </div>
+
+        {/* Barra Flotante de Resumen y Precio */}
+        <LivePriceBar
+          selectedFiambre={selectedFiambre}
+          selectedQueso={selectedQueso}
+          selectedExtras={selectedExtras}
+          selectedAderezos={selectedAderezos}
+          selectedBebidas={selectedBebidas}
+          quantity={quantity}
+          unitPrice={unitPrice}
+          subtotal={subtotal}
+          isComplete={isComplete}
+          isEditing={Boolean(editingId)}
+          onIncrementQuantity={incrementQuantity}
+          onDecrementQuantity={decrementQuantity}
+          onAddToCart={handleAddToCart}
+          onReset={resetBuilder}
+        />
+
+        {/* Cartel / Modal de confirmación al completar un sándwich */}
+        <SandwichAddedModal
+          isOpen={isSuccessModalOpen}
+          onClose={() => setIsSuccessModalOpen(false)}
+          sandwich={addedSandwich}
+          onBuildAnother={handleBuildAnother}
+          onFinishOrder={handleFinishOrder}
+        />
       </div>
-
-      {/* Tarjeta Contenedora Principal de los Pasos */}
-      <div className="bg-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-8 border border-stone-200/90 shadow-sm">
-        {currentStep === 1 && (
-          <StepFiambre
-            selectedFiambre={selectedFiambre}
-            onSelect={handleFiambreSelect}
-            onNextStep={() => selectedFiambre && setCurrentStep(2)}
-          />
-        )}
-
-        {currentStep === 2 && (
-          <StepQueso
-            selectedFiambre={selectedFiambre}
-            selectedQueso={selectedQueso}
-            onSelect={handleQuesoSelect}
-            onGoToFiambreStep={() => setCurrentStep(1)}
-            onNextStep={() => selectedQueso && setCurrentStep(3)}
-          />
-        )}
-
-        {currentStep === 3 && (
-          <StepExtras
-            selectedExtras={selectedExtras}
-            onToggleExtra={toggleExtra}
-            isExtraSelected={isExtraSelected}
-            onClearExtras={clearExtras}
-            selectedAderezos={selectedAderezos}
-            onToggleAderezo={toggleAderezo}
-            isAderezoSelected={isAderezoSelected}
-            onClearAderezos={clearAderezos}
-            selectedBebidas={selectedBebidas}
-            onToggleBebida={toggleBebida}
-            isBebidaSelected={isBebidaSelected}
-            onClearBebidas={clearBebidas}
-          />
-        )}
-      </div>
-
-      {/* Barra Flotante de Resumen y Precio */}
-      <LivePriceBar
-        selectedFiambre={selectedFiambre}
-        selectedQueso={selectedQueso}
-        selectedExtras={selectedExtras}
-        selectedAderezos={selectedAderezos}
-        selectedBebidas={selectedBebidas}
-        quantity={quantity}
-        unitPrice={unitPrice}
-        subtotal={subtotal}
-        isComplete={isComplete}
-        isEditing={Boolean(editingId)}
-        onIncrementQuantity={incrementQuantity}
-        onDecrementQuantity={decrementQuantity}
-        onAddToCart={handleAddToCart}
-        onReset={resetBuilder}
-      />
-
-      {/* Cartel / Modal de confirmación al completar un sándwich */}
-      <SandwichAddedModal
-        isOpen={isSuccessModalOpen}
-        onClose={() => setIsSuccessModalOpen(false)}
-        sandwich={addedSandwich}
-        onBuildAnother={handleBuildAnother}
-        onFinishOrder={handleFinishOrder}
-      />
     </section>
   );
 };

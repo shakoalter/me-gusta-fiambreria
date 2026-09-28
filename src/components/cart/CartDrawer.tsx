@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, ShoppingBag, Trash2, ArrowRight } from 'lucide-react';
+import { X, ShoppingBag, Trash2, ArrowRight, Plus, Utensils } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { CartItemCard } from './CartItemCard';
 import { CartSummary } from './CartSummary';
@@ -58,10 +58,12 @@ export const CartDrawer: React.FC = () => {
   const handleStartBuilding = () => {
     startNewSandwich();
     closeCart();
-    const el = document.getElementById('builder-section');
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' });
-    }
+    setTimeout(() => {
+      const el = document.getElementById('builder-section');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 100);
   };
 
   const handleOrderSent = () => {
@@ -122,7 +124,7 @@ export const CartDrawer: React.FC = () => {
             <button
               type="button"
               onClick={closeCart}
-              className="p-2 text-stone-400 hover:text-stone-700 rounded-lg hover:bg-stone-100 transition-colors"
+              className="p-2 text-stone-400 hover:text-stone-700 rounded-lg hover:bg-stone-100 transition-colors cursor-pointer"
               aria-label="Cerrar panel de pedido"
             >
               <X className="w-5 h-5" />
@@ -148,14 +150,30 @@ export const CartDrawer: React.FC = () => {
               <button
                 type="button"
                 onClick={handleStartBuilding}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gourmet-primary text-white text-xs font-bold shadow-sm hover:bg-gourmet-primaryHover transition-colors cursor-pointer"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#781D22] text-white text-xs font-bold shadow-sm hover:bg-[#60161a] transition-colors cursor-pointer"
               >
                 <span>Comenzar a armar</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>
           ) : (
-            items.map((item) => <CartItemCard key={item.id} item={item} />)
+            <div className="space-y-4">
+              {items.map((item) => (
+                <CartItemCard key={item.id} item={item} />
+              ))}
+
+              {/* Botón destacado para seguir agregando sándwiches */}
+              <div className="pt-2">
+                <button
+                  type="button"
+                  onClick={handleStartBuilding}
+                  className="w-full py-3.5 px-4 rounded-2xl bg-white hover:bg-[#FFF9EE] border-2 border-dashed border-[#781D22]/50 hover:border-[#781D22] text-[#781D22] font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs group"
+                >
+                  <Plus className="w-4 h-4 stroke-[2.5] group-hover:scale-110 transition-transform" />
+                  <span>+ Armar otro sándwich gourmet</span>
+                </button>
+              </div>
+            </div>
           )}
         </div>
 
@@ -172,6 +190,16 @@ export const CartDrawer: React.FC = () => {
               onOrderSent={handleOrderSent}
               onValidationError={() => setHasNameError(true)}
             />
+
+            {/* Enlace secundario para seguir eligiendo */}
+            <button
+              type="button"
+              onClick={handleStartBuilding}
+              className="w-full py-1 text-center text-xs font-bold text-stone-700 hover:text-stone-900 underline transition-colors cursor-pointer flex items-center justify-center gap-1.5"
+            >
+              <Utensils className="w-3.5 h-3.5" />
+              <span>Seguir eligiendo más sándwiches</span>
+            </button>
           </div>
         )}
       </div>

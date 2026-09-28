@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Trash2, Edit3 } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import { CartItem } from '../../types/product';
 import { QuantitySelector } from '../common/QuantitySelector';
 import { PriceTag } from '../common/PriceTag';
@@ -12,18 +12,8 @@ interface CartItemCardProps {
 }
 
 export const CartItemCard: React.FC<CartItemCardProps> = ({ item }) => {
-  const { updateQuantity, removeItem, setItemToEdit, closeCart } = useCart();
+  const { updateQuantity, removeItem } = useCart();
   const { showToast } = useToast();
-
-  const handleEdit = () => {
-    setItemToEdit(item);
-    closeCart();
-    const el = document.getElementById('builder-section');
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' });
-    }
-    showToast(`Editando sándwich: ${item.fiambre.name} + ${item.queso.name}`, 'info');
-  };
 
   const handleRemove = () => {
     removeItem(item.id);
@@ -41,29 +31,27 @@ export const CartItemCard: React.FC<CartItemCardProps> = ({ item }) => {
       {/* Título y Acciones */}
       <div className="flex items-start justify-between gap-2">
         <div>
-          <h4 className="font-serif font-bold text-base text-gourmet-dark leading-snug">
-            {item.fiambre.name} + {item.queso.name}
-          </h4>
+          <div className="flex flex-wrap items-center gap-1.5">
+            <h4 className="font-serif font-bold text-base text-gourmet-dark leading-snug">
+              {item.fiambre.name} + {item.queso.name}
+            </h4>
+            {item.notes && (
+              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-100 text-amber-900 border border-amber-300 shadow-2xs">
+                {item.notes}
+              </span>
+            )}
+          </div>
           <p className="text-xs text-gourmet-muted">
             Precio unitario: <strong className="text-gourmet-dark font-medium">${item.unitPrice.toLocaleString('es-AR')}</strong>
           </p>
         </div>
 
-        <div className="flex items-center gap-1 shrink-0">
-          <button
-            type="button"
-            onClick={handleEdit}
-            aria-label="Modificar sándwich"
-            className="p-1.5 text-stone-400 hover:text-gourmet-primary hover:bg-stone-100 rounded-lg transition-colors"
-            title="Editar opciones"
-          >
-            <Edit3 className="w-4 h-4" />
-          </button>
+        <div className="flex items-center shrink-0">
           <button
             type="button"
             onClick={handleRemove}
             aria-label="Eliminar sándwich"
-            className="p-1.5 text-stone-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+            className="p-1.5 text-stone-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
             title="Eliminar sándwich"
           >
             <Trash2 className="w-4 h-4" />

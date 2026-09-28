@@ -17,7 +17,7 @@ export const App: React.FC = () => {
           <Header />
 
           {/* Contenido Principal */}
-          <main className="flex-1 py-4 sm:py-6 space-y-6">
+          <main className="flex-1">
             <Hero />
             <SandwichBuilder />
           </main>

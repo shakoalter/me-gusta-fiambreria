@@ -4,6 +4,8 @@ import {
   calculateSandwichUnitPrice,
   calculateSandwichSubtotal,
   calculateCartTotals,
+  roundUpToNearestHundred,
+  calculateDailyOfferPrice,
 } from '../priceCalculator';
 import { FIAMBRES_DATA } from '../../data/fiambres';
 import { QUESOS_DATA } from '../../data/quesos';
@@ -116,4 +118,54 @@ describe('PriceCalculator Service', () => {
     expect(totals.totalQuantity).toBe(3);
     expect(totals.totalPrice).toBe(21100);
   });
+
+  describe('Redondeo hacia arriba a múltiplos de $100 (ceil)', () => {
+    it('debe redondear números no redondos hacia el siguiente múltiplo de $100', () => {
+      // Casos explícitos del requerimiento
+      expect(roundUpToNearestHundred(3960)).toBe(4000);
+      expect(roundUpToNearestHundred(3110)).toBe(3200);
+      expect(roundUpToNearestHundred(5490)).toBe(5500);
+      expect(roundUpToNearestHundred(5220)).toBe(5300);
+    });
+
+    it('debe mantener intactos los valores que ya son múltiplos de $100', () => {
+      expect(roundUpToNearestHundred(4000)).toBe(4000);
+      expect(roundUpToNearestHundred(6300)).toBe(6300);
+      expect(roundUpToNearestHundred(7000)).toBe(7000);
+    });
+  });
+
+  describe('Cálculo de Oferta del Día (Sándwich + Bebida -10% OFF + Redondeo + Extras sin descuento)', () => {
+    it('debe calcular correctamente el combo del día Salame + Queso Clásico + Coca 600cc ($7000 - 10% = $6300)', () => {
+      // Salame $4400 + Coca 600cc $2600 = $7000 -> 10% OFF = $6300
+      const result = calculateDailyOfferPrice('salame', 'queso-clasico', 'coca-cola-600', []);
+      expect(result.originalBasePrice).toBe(7000);
+      expect(result.discountedBasePrice).toBe(6300);
+      expect(result.unitPrice).toBe(6300);
+      expect(result.discountSavings).toBe(700);
+    });
+
+    it('debe aplicar redondeo ceil a $100 cuando el 10% de descuento no resulte en múltiplo de $100', () => {
+      // Mortadela + Queso Clásico ($3900) + Agua Benedictino 500 ($1900) = $5800
+      // 10% OFF = $5220 -> ceil($100) = $5300
+      const result = calculateDailyOfferPrice('mortadela', 'queso-clasico', 'agua-benedictino-500', []);
+      expect(result.originalBasePrice).toBe(5800);
+      expect(result.discountedBasePrice).toBe(5300);
+      expect(result.unitPrice).toBe(5300);
+      expect(result.discountSavings).toBe(500);
+    });
+
+    it('debe sumar los extras a precio completo sin aplicarles descuento', () => {
+      const tomate = EXTRAS_DATA.find((e) => e.id === 'tomate')!; // $800
+      const aceitunas = EXTRAS_DATA.find((e) => e.id === 'aceitunas')!; // $1000
+
+      // Combo base Salame + Queso Clásico + Coca 600 = $6300 promo + $800 tomate + $1000 aceitunas = $8100
+      const result = calculateDailyOfferPrice('salame', 'queso-clasico', 'coca-cola-600', [tomate, aceitunas]);
+      expect(result.originalBasePrice).toBe(7000);
+      expect(result.discountedBasePrice).toBe(6300);
+      expect(result.extrasTotal).toBe(1800);
+      expect(result.unitPrice).toBe(8100);
+    });
+  });
 });
+

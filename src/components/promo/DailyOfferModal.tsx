@@ -2,11 +2,11 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { X, ShoppingBag, Plus, GlassWater, Sparkles, ChevronDown, Check } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
+import { usePricing } from '../../context/PricingContext';
 import { useToast } from '../../context/ToastContext';
+import { FIAMBRES_DATA } from '../../data/fiambres';
+import { QUESOS_DATA } from '../../data/quesos';
 import {
-  DAILY_OFFER_CONFIG,
-  getDailyOfferFiambre,
-  getDailyOfferQueso,
   getDailyOfferBebidas,
   getDailyOfferExtras,
   getDailyOfferAderezos,
@@ -22,17 +22,24 @@ interface DailyOfferModalProps {
 
 export const DailyOfferModal: React.FC<DailyOfferModalProps> = ({ isOpen, onClose }) => {
   const { addItem, openCart, startNewSandwich } = useCart();
+  const { dailyOffer, pricing } = usePricing();
   const { showToast } = useToast();
 
-  const fiambre = useMemo(() => getDailyOfferFiambre(), []);
-  const queso = useMemo(() => getDailyOfferQueso(), []);
+  const fiambre = useMemo(() => {
+    return FIAMBRES_DATA.find((f) => f.id === dailyOffer.fiambreId) || FIAMBRES_DATA[0];
+  }, [dailyOffer.fiambreId]);
+
+  const queso = useMemo(() => {
+    return QUESOS_DATA.find((q) => q.id === dailyOffer.quesoId) || QUESOS_DATA[0];
+  }, [dailyOffer.quesoId]);
+
   const availableBebidas = useMemo(() => getDailyOfferBebidas(), []);
   const availableExtras = useMemo(() => getDailyOfferExtras(), []);
   const availableAderezos = useMemo(() => getDailyOfferAderezos(), []);
 
   // Estados de selección dentro de la oferta
   const [selectedBebidaId, setSelectedBebidaId] = useState<string>(
-    DAILY_OFFER_CONFIG.defaultBebidaId || (availableBebidas[0]?.id ?? '')
+    dailyOffer.defaultBebidaId || (availableBebidas[0]?.id ?? '')
   );
   const [selectedExtraId, setSelectedExtraId] = useState<string>('sin-extra');
   const [selectedAderezoId, setSelectedAderezoId] = useState<string>('sin-aderezo');
@@ -57,17 +64,17 @@ export const DailyOfferModal: React.FC<DailyOfferModalProps> = ({ isOpen, onClos
     };
   }, [isOpen, onClose]);
 
-  // Si se abre de nuevo, reseteamos a los valores por defecto
+  // Si se abre de nuevo, reseteamos a los valores por defecto de la oferta activa
   useEffect(() => {
     if (isOpen) {
-      setSelectedBebidaId(DAILY_OFFER_CONFIG.defaultBebidaId || (availableBebidas[0]?.id ?? ''));
+      setSelectedBebidaId(dailyOffer.defaultBebidaId || (availableBebidas[0]?.id ?? ''));
       setSelectedExtraId('sin-extra');
       setSelectedAderezoId('sin-aderezo');
       setIsSubmitting(false);
       setIsSuccess(false);
       setAddedItem(null);
     }
-  }, [isOpen, availableBebidas]);
+  }, [isOpen, availableBebidas, dailyOffer.defaultBebidaId]);
 
   if (!isOpen) return null;
 
@@ -76,14 +83,15 @@ export const DailyOfferModal: React.FC<DailyOfferModalProps> = ({ isOpen, onClos
   const chosenExtra: Extra | undefined = availableExtras.find((e) => e.id === selectedExtraId);
   const chosenAderezo: Aderezo | undefined = availableAderezos.find((a) => a.id === selectedAderezoId);
 
-  // Cálculo de la oferta: (Sándwich + Bebida) con 10% OFF + redondeo hacia arriba ceil($100) + Extras sin descuento
+  // Cálculo de la oferta dinámica: (Sándwich + Bebida) con descuento + redondeo hacia arriba ceil($100) + Extras
   const extrasList: Extra[] = chosenExtra ? [chosenExtra] : [];
   const offerCalculation = calculateDailyOfferPrice(
-    DAILY_OFFER_CONFIG.fiambreId,
-    DAILY_OFFER_CONFIG.quesoId,
+    dailyOffer.fiambreId,
+    dailyOffer.quesoId,
     chosenBebida?.id as BebidaId | undefined,
     extrasList,
-    DAILY_OFFER_CONFIG.discountPercentage
+    dailyOffer.discountPercentage,
+    pricing
   );
 
   const totalPrice = offerCalculation.unitPrice;
@@ -159,20 +167,23 @@ export const DailyOfferModal: React.FC<DailyOfferModalProps> = ({ isOpen, onClos
         {/* PARTE SUPERIOR / IMAGEN PRINCIPAL */}
         <div className="relative w-full h-48 sm:h-60 md:h-64 bg-stone-900 shrink-0 overflow-hidden">
           <img
-            src={DAILY_OFFER_CONFIG.image}
-            alt={DAILY_OFFER_CONFIG.title}
+            src={dailyOffer.image || '/images/hero-sandwich.jpg'}
+            alt={dailyOffer.title}
             className="w-full h-full object-cover"
             loading="eager"
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = '/images/hero-sandwich.jpg';
+            }}
           />
 
           {/* Gradiente sutil para contraste */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/15 to-black/35 pointer-events-none" />
 
-          {/* BADGE "🌾 OFERTA DEL DÍA" (Pastilla bordó con borde dorado) */}
+          {/* BADGE OFERTA DEL DÍA */}
           <div className="absolute top-4 left-4 sm:top-5 sm:left-5 z-10">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#781D22] text-amber-100 text-xs sm:text-sm font-extrabold tracking-wider uppercase shadow-lg border border-amber-400/50">
               <span className="text-amber-300 text-sm leading-none">🌾</span>
-              <span>{DAILY_OFFER_CONFIG.badge}</span>
+              <span>{dailyOffer.badge || 'OFERTA DEL DÍA'}</span>
             </div>
           </div>
 
@@ -212,7 +223,7 @@ export const DailyOfferModal: React.FC<DailyOfferModalProps> = ({ isOpen, onClos
               <div className="flex items-start justify-between gap-2 border-b border-stone-100 pb-2">
                 <div>
                   <h4 className="font-serif font-bold text-base text-stone-900">
-                    {DAILY_OFFER_CONFIG.title}
+                    {dailyOffer.title}
                   </h4>
                   <p className="text-xs text-stone-500">
                     {fiambre.name} + {queso.name}
@@ -233,7 +244,7 @@ export const DailyOfferModal: React.FC<DailyOfferModalProps> = ({ isOpen, onClos
                 {chosenExtra && (
                   <p className="flex items-center gap-1.5 text-emerald-800 font-medium">
                     <span>🥗</span>
-                    <span>Extra: {chosenExtra.name} (+{formatCurrency(chosenExtra.price)})</span>
+                    <span>Extra: {chosenExtra.name} (+{formatCurrency(pricing.extras[chosenExtra.id] ?? chosenExtra.price)})</span>
                   </p>
                 )}
                 {chosenAderezo && (
@@ -247,7 +258,6 @@ export const DailyOfferModal: React.FC<DailyOfferModalProps> = ({ isOpen, onClos
 
             {/* Botones de acción tras agregar la oferta */}
             <div className="space-y-3 max-w-lg mx-auto pt-2">
-              {/* Botón 1: Finalizar compra / Ver pedido */}
               <button
                 type="button"
                 onClick={handleViewCart}
@@ -257,7 +267,6 @@ export const DailyOfferModal: React.FC<DailyOfferModalProps> = ({ isOpen, onClos
                 <span>Ver mi Pedido / Finalizar Compra</span>
               </button>
 
-              {/* Botón 2: Armar otro sándwich */}
               <button
                 type="button"
                 onClick={handleGoToBuilder}
@@ -267,7 +276,6 @@ export const DailyOfferModal: React.FC<DailyOfferModalProps> = ({ isOpen, onClos
                 <span>+ Armar otro sándwich a medida</span>
               </button>
 
-              {/* Opción secundaria: Agregar otra oferta */}
               <button
                 type="button"
                 onClick={() => setIsSuccess(false)}
@@ -282,20 +290,18 @@ export const DailyOfferModal: React.FC<DailyOfferModalProps> = ({ isOpen, onClos
             {/* Título, Descripción y Desglose de Precio */}
             <div className="border-b border-[#E8DFC8]/90 pb-4">
               <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
-                {/* Lado Izquierdo: Título y descripción */}
                 <div className="space-y-1 text-left">
                   <h3
                     id="daily-offer-title"
                     className="font-serif text-2xl sm:text-3xl font-extrabold text-stone-900 tracking-tight leading-tight"
                   >
-                    {DAILY_OFFER_CONFIG.title}
+                    {dailyOffer.title}
                   </h3>
                   <p className="text-xs sm:text-sm text-stone-600 font-normal leading-relaxed max-w-xl">
-                    {DAILY_OFFER_CONFIG.description}
+                    {dailyOffer.description}
                   </p>
                 </div>
 
-                {/* Lado Derecho: Bloque de Precio */}
                 <div className="shrink-0 text-left sm:text-right self-start">
                   <span className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-stone-700 block mb-0.5">
                     PROMO COMBO
@@ -314,10 +320,10 @@ export const DailyOfferModal: React.FC<DailyOfferModalProps> = ({ isOpen, onClos
               </div>
             </div>
 
-            {/* SELECTORES EN 3 CAJAS CAOBA ARTESANALES */}
+            {/* SELECTORES EN 3 CAJAS CAOBA */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 sm:gap-4">
               
-              {/* 1. AGREGAR BEBIDA */}
+              {/* 1. BEBIDA */}
               <div className="bg-gradient-to-b from-[#4A1519] via-[#2A100B] to-[#1C0B08] rounded-2xl p-3 sm:p-3.5 border-[1.5px] border-amber-500/70 shadow-lg flex flex-col justify-between space-y-3">
                 <div className="flex items-center gap-2.5">
                   <img
@@ -357,7 +363,7 @@ export const DailyOfferModal: React.FC<DailyOfferModalProps> = ({ isOpen, onClos
                 </div>
               </div>
 
-              {/* 2. AGREGAR EXTRA */}
+              {/* 2. EXTRA */}
               <div className="bg-gradient-to-b from-[#4A1519] via-[#2A100B] to-[#1C0B08] rounded-2xl p-3 sm:p-3.5 border-[1.5px] border-amber-500/70 shadow-lg flex flex-col justify-between space-y-3">
                 <div className="flex items-center gap-2.5">
                   <img
@@ -388,17 +394,20 @@ export const DailyOfferModal: React.FC<DailyOfferModalProps> = ({ isOpen, onClos
                     className="w-full appearance-none bg-[#140607] hover:bg-[#1f090b] border border-amber-500/60 rounded-xl px-3 py-2 text-xs font-semibold text-amber-100 pr-8 focus:outline-hidden focus:ring-1 focus:ring-amber-400 cursor-pointer transition-colors"
                   >
                     <option value="sin-extra" className="bg-stone-900 text-white">Sin extra</option>
-                    {availableExtras.map((extra) => (
-                      <option key={extra.id} value={extra.id} className="bg-stone-900 text-white">
-                        {extra.name} (+{formatCurrency(extra.price)})
-                      </option>
-                    ))}
+                    {availableExtras.map((extra) => {
+                      const extraPrice = pricing.extras[extra.id] ?? extra.price;
+                      return (
+                        <option key={extra.id} value={extra.id} className="bg-stone-900 text-white">
+                          {extra.name} (+{formatCurrency(extraPrice)})
+                        </option>
+                      );
+                    })}
                   </select>
                   <ChevronDown className="w-4 h-4 text-amber-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                 </div>
               </div>
 
-              {/* 3. AGREGAR ADEREZO */}
+              {/* 3. ADEREZO */}
               <div className="bg-gradient-to-b from-[#4A1519] via-[#2A100B] to-[#1C0B08] rounded-2xl p-3 sm:p-3.5 border-[1.5px] border-amber-500/70 shadow-lg flex flex-col justify-between space-y-3">
                 <div className="flex items-center gap-2.5">
                   <img
@@ -441,7 +450,7 @@ export const DailyOfferModal: React.FC<DailyOfferModalProps> = ({ isOpen, onClos
 
             </div>
 
-            {/* BOTÓN DE ACCIÓN CON FILIGRANA DORADA */}
+            {/* BOTÓN DE ACCIÓN */}
             <div className="pt-2">
               <motion.button
                 type="button"

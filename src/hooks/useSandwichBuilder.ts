@@ -1,8 +1,11 @@
 import { useState, useMemo, useCallback } from 'react';
 import { Fiambre, Queso, Extra, Aderezo, Bebida, SandwichCustomization, CartItem } from '../types/product';
 import { calculateSandwichUnitPrice, calculateSandwichSubtotal } from '../services/priceCalculator';
+import { usePricing } from '../context/PricingContext';
 
 export function useSandwichBuilder(initialItem?: CartItem | null) {
+  const { pricing } = usePricing();
+
   const [selectedFiambre, setSelectedFiambre] = useState<Fiambre | null>(initialItem?.fiambre ?? null);
   const [selectedQueso, setSelectedQueso] = useState<Queso | null>(initialItem?.queso ?? null);
   const [selectedExtras, setSelectedExtras] = useState<Extra[]>(initialItem?.extras ?? []);
@@ -12,11 +15,17 @@ export function useSandwichBuilder(initialItem?: CartItem | null) {
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [editingId, setEditingId] = useState<string | null>(initialItem?.id ?? null);
 
-  // Calcula el precio unitario en tiempo real
+  // Calcula el precio unitario en tiempo real usando la matriz de precios reactiva
   const unitPrice = useMemo(() => {
     if (!selectedFiambre || !selectedQueso) return 0;
-    return calculateSandwichUnitPrice(selectedFiambre.id, selectedQueso.id, selectedExtras, selectedBebidas);
-  }, [selectedFiambre, selectedQueso, selectedExtras, selectedBebidas]);
+    return calculateSandwichUnitPrice(
+      selectedFiambre.id, 
+      selectedQueso.id, 
+      selectedExtras, 
+      selectedBebidas,
+      pricing
+    );
+  }, [selectedFiambre, selectedQueso, selectedExtras, selectedBebidas, pricing]);
 
   // Calcula el subtotal en tiempo real
   const subtotal = useMemo(() => {
@@ -139,7 +148,8 @@ export function useSandwichBuilder(initialItem?: CartItem | null) {
       selectedFiambre.id,
       selectedQueso.id,
       selectedExtras,
-      selectedBebidas
+      selectedBebidas,
+      pricing
     );
     const finalSubtotal = calculateSandwichSubtotal(finalUnitPrice, quantity);
 
@@ -154,7 +164,7 @@ export function useSandwichBuilder(initialItem?: CartItem | null) {
       unitPrice: finalUnitPrice,
       subtotal: finalSubtotal,
     };
-  }, [selectedFiambre, selectedQueso, selectedExtras, selectedAderezos, selectedBebidas, quantity, editingId]);
+  }, [selectedFiambre, selectedQueso, selectedExtras, selectedAderezos, selectedBebidas, quantity, editingId, pricing]);
 
   return {
     selectedFiambre,

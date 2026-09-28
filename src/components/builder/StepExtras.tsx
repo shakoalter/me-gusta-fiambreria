@@ -6,6 +6,7 @@ import { ADEREZOS_DATA } from '../../data/aderezos';
 import { BEBIDAS_DATA } from '../../data/bebidas';
 import { Extra, Aderezo, Bebida } from '../../types/product';
 import { formatCurrency } from '../../utils/formatters';
+import { usePricing } from '../../context/PricingContext';
 
 interface StepExtrasProps {
   selectedExtras: Extra[];
@@ -46,6 +47,7 @@ export const StepExtras: React.FC<StepExtrasProps> = ({
   isBebidaSelected = () => false,
   onClearBebidas,
 }) => {
+  const { pricing } = usePricing();
   const extrasSectionRef = useRef<HTMLDivElement>(null);
   const bebidasSectionRef = useRef<HTMLDivElement>(null);
 
@@ -313,6 +315,7 @@ export const StepExtras: React.FC<StepExtrasProps> = ({
         <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2.5 sm:gap-4">
           {EXTRAS_DATA.map((extra) => {
             const isSelected = isExtraSelected(extra.id);
+            const dynamicPrice = pricing.extras[extra.id] ?? extra.price;
 
             return (
               <motion.div
@@ -360,7 +363,7 @@ export const StepExtras: React.FC<StepExtrasProps> = ({
                 {/* Precio */}
                 <div className="mt-2.5 sm:mt-3 pt-1.5 sm:pt-2 border-t border-stone-100 flex items-center justify-between gap-1">
                   <span className="text-xs sm:text-sm font-bold text-emerald-700">
-                    +{formatCurrency(extra.price)}
+                    +{formatCurrency(dynamicPrice)}
                   </span>
                   <div
                     className={`inline-flex items-center gap-0.5 sm:gap-1 px-2.5 py-0.5 sm:px-2.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-bold transition-all shadow-xs shrink-0 ${
@@ -422,6 +425,7 @@ export const StepExtras: React.FC<StepExtrasProps> = ({
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5 sm:gap-4">
           {BEBIDAS_DATA.map((bebida) => {
             const isSelected = isBebidaSelected(bebida.id);
+            const dynamicPrice = pricing.bebidas[bebida.id] ?? bebida.price;
 
             return (
               <motion.div
@@ -484,7 +488,7 @@ export const StepExtras: React.FC<StepExtrasProps> = ({
                 {/* Precio */}
                 <div className="mt-2.5 sm:mt-3 pt-1.5 sm:pt-2 border-t border-stone-100 flex items-center justify-between gap-1">
                   <span className="text-xs sm:text-sm font-bold text-blue-800">
-                    +{formatCurrency(bebida.price)}
+                    +{formatCurrency(dynamicPrice)}
                   </span>
                   <div
                     className={`inline-flex items-center gap-0.5 sm:gap-1 px-2.5 py-0.5 sm:px-2.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-bold transition-all shadow-xs shrink-0 ${

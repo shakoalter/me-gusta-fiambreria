@@ -5,6 +5,7 @@ import { QUESOS_DATA } from '../../data/quesos';
 import { Fiambre, Queso } from '../../types/product';
 import { getBaseSandwichPrice } from '../../services/priceCalculator';
 import { formatCurrency } from '../../utils/formatters';
+import { usePricing } from '../../context/PricingContext';
 
 interface StepQuesoProps {
   selectedFiambre: Fiambre | null;
@@ -37,6 +38,8 @@ export const StepQueso: React.FC<StepQuesoProps> = ({
   onGoToFiambreStep,
   onNextStep,
 }) => {
+  const { pricing } = usePricing();
+
   return (
     <div className="space-y-6">
       {/* Encabezado del Paso */}
@@ -95,14 +98,14 @@ export const StepQueso: React.FC<StepQuesoProps> = ({
         </div>
       )}
 
-      {/* Grid de Quesos (2 Columnas en Celular, 4 en Desktop) */}
+      {/* Grid de Quesos */}
       <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4 lg:gap-5">
         {QUESOS_DATA.map((queso) => {
           const isSelected = selectedQueso?.id === queso.id;
 
-          // Calculamos el precio combinado si ya tenemos fiambre
+          // Calculamos el precio combinado dinámico
           const price = selectedFiambre
-            ? getBaseSandwichPrice(selectedFiambre.id, queso.id)
+            ? getBaseSandwichPrice(selectedFiambre.id, queso.id, pricing.matrix)
             : null;
 
           return (

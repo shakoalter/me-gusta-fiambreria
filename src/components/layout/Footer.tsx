@@ -1,8 +1,12 @@
 import React from 'react';
 import { STORE_CONFIG } from '../../config/storeConfig';
-import { MapPin, Clock, CreditCard, MessageCircle } from 'lucide-react';
+import { MapPin, Clock, CreditCard, MessageCircle, Lock } from 'lucide-react';
 
-export const Footer: React.FC = () => {
+interface FooterProps {
+  onOpenAdmin?: () => void;
+}
+
+export const Footer: React.FC<FooterProps> = ({ onOpenAdmin }) => {
   return (
     <footer id="footer-section" className="bg-stone-900 text-stone-300 pt-12 pb-24 md:pb-12 border-t border-stone-800">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
@@ -58,10 +62,24 @@ export const Footer: React.FC = () => {
 
         </div>
 
-        {/* Copyright */}
-        <div className="pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-stone-500 gap-2">
+        {/* Copyright y Acceso de Administración */}
+        <div className="pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-stone-500 gap-3">
           <p>© {new Date().getFullYear()} {STORE_CONFIG.storeName} — Todos los derechos reservados.</p>
-          <p className="italic">Elaboración fresca y artesanal.</p>
+          
+          <div className="flex items-center gap-4">
+            <p className="italic">Elaboración fresca y artesanal.</p>
+            {onOpenAdmin && (
+              <button
+                type="button"
+                onClick={onOpenAdmin}
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-stone-800 hover:bg-stone-700 text-stone-400 hover:text-amber-300 text-[11px] font-medium transition-colors cursor-pointer border border-stone-700/50"
+                aria-label="Acceso al panel de administración"
+              >
+                <Lock className="w-3 h-3" />
+                <span>Administración</span>
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </footer>

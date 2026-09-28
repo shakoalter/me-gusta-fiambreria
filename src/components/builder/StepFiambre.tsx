@@ -4,6 +4,7 @@ import { Check, Search, ArrowRight } from 'lucide-react';
 import { FIAMBRES_DATA } from '../../data/fiambres';
 import { Fiambre, FiambreCategory } from '../../types/product';
 import { formatCurrency } from '../../utils/formatters';
+import { usePricing } from '../../context/PricingContext';
 
 interface StepFiambreProps {
   selectedFiambre: Fiambre | null;
@@ -41,6 +42,7 @@ export const StepFiambre: React.FC<StepFiambreProps> = ({
   onSelect,
   onNextStep,
 }) => {
+  const { getFiambreMinPrice } = usePricing();
   const [activeCategory, setActiveCategory] = useState<'Todos' | FiambreCategory>('Todos');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -115,7 +117,7 @@ export const StepFiambre: React.FC<StepFiambreProps> = ({
         })}
       </div>
 
-      {/* Grid de Fiambres (2 Columnas en Celular, 4 en Desktop) */}
+      {/* Grid de Fiambres */}
       {filteredFiambres.length === 0 ? (
         <div className="text-center py-12 bg-stone-50 rounded-2xl border border-dashed border-stone-300 p-6">
           <p className="text-sm font-semibold text-stone-800">No se encontraron fiambres</p>
@@ -125,6 +127,7 @@ export const StepFiambre: React.FC<StepFiambreProps> = ({
         <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4 lg:gap-5">
           {filteredFiambres.map((fiambre) => {
             const isSelected = selectedFiambre?.id === fiambre.id;
+            const minPrice = getFiambreMinPrice(fiambre.id) || fiambre.basePriceMin;
 
             return (
               <motion.div
@@ -178,7 +181,7 @@ export const StepFiambre: React.FC<StepFiambreProps> = ({
                   <div>
                     <span className="text-[9px] sm:text-[11px] font-semibold text-stone-400 block leading-tight">Desde</span>
                     <span className="font-serif font-bold text-xs sm:text-base text-stone-900 leading-tight">
-                      {formatCurrency(fiambre.basePriceMin)}
+                      {formatCurrency(minPrice)}
                     </span>
                   </div>
 

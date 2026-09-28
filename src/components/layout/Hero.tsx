@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, Utensils, ArrowRight, MousePointerClick, Megaphone } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
-import { DAILY_OFFER_CONFIG } from '../../data/dailyOffer';
+import { usePricing } from '../../context/PricingContext';
 import { DailyOfferModal } from '../promo/DailyOfferModal';
 
 export const Hero: React.FC = () => {
   const { startNewSandwich } = useCart();
+  const { dailyOffer } = usePricing();
   const [isOfferModalOpen, setIsOfferModalOpen] = useState<boolean>(false);
 
   const scrollToBuilder = () => {
@@ -110,7 +111,7 @@ export const Hero: React.FC = () => {
               </div>
             </motion.div>
 
-            {/* Columna Derecha: Tarjeta Promocional Oferta del Día */}
+            {/* Columna Derecha: Tarjeta Promocional Oferta del Día Dinámica */}
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -137,24 +138,27 @@ export const Hero: React.FC = () => {
                   {/* FOTOGRAFÍA SUPERIOR DEL PRODUCTO */}
                   <div className="relative w-full aspect-[16/10] sm:aspect-[16/9.5] overflow-hidden bg-stone-950 border-b-2 border-amber-500/20">
                     <img
-                      src={DAILY_OFFER_CONFIG.image}
-                      alt={DAILY_OFFER_CONFIG.title}
+                      src={dailyOffer.image || '/images/hero-sandwich.jpg'}
+                      alt={dailyOffer.title}
                       className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700 ease-out"
                       loading="eager"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = '/images/hero-sandwich.jpg';
+                      }}
                     />
 
                     {/* Gradiente sutil para profundidad */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20 pointer-events-none" />
 
-                    {/* INSIGNIA «OFERTA DEL DÍA» (Cinta Amarilla Superior Izquierda) */}
+                    {/* INSIGNIA «OFERTA DEL DÍA» */}
                     <div className="absolute top-3 left-3 sm:top-4 sm:left-4 z-20">
                       <div className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-xl bg-[#F5A623] text-stone-950 text-xs sm:text-sm font-black uppercase tracking-wider shadow-2xl border border-yellow-300/70 transform -rotate-2 group-hover:rotate-0 transition-transform duration-300">
                         <Megaphone className="w-4 h-4 sm:w-4.5 sm:h-4.5 fill-stone-950 stroke-stone-950 stroke-[2.5]" />
-                        <span>{DAILY_OFFER_CONFIG.badge}</span>
+                        <span>{dailyOffer.badge || 'OFERTA DEL DÍA'}</span>
                       </div>
                     </div>
 
-                    {/* INSIGNIA «INGREDIENTES DE PRIMERA» (Sello Circular Superior Derecho) */}
+                    {/* INSIGNIA «INGREDIENTES DE PRIMERA» */}
                     <div className="absolute top-3 right-3 sm:top-4 sm:right-4 z-20 w-18 h-18 sm:w-22 sm:h-22 rounded-full bg-[#18120C]/95 text-amber-300 border-2 border-dashed border-[#F5A623] shadow-2xl flex flex-col items-center justify-center text-center p-1.5 backdrop-blur-xs transform rotate-6 group-hover:rotate-12 transition-transform duration-300 pointer-events-none">
                       <span className="text-sm sm:text-base leading-none">🌿</span>
                       <span className="text-[8px] sm:text-[9.5px] font-black uppercase tracking-tight leading-tight text-white mt-1">
@@ -171,14 +175,14 @@ export const Hero: React.FC = () => {
                     {/* Título y Descripción Dinámica */}
                     <div className="space-y-1 text-left">
                       <h3 className="font-serif text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-tight group-hover:text-amber-300 transition-colors">
-                        {DAILY_OFFER_CONFIG.title}
+                        {dailyOffer.title}
                       </h3>
                       <p className="text-xs sm:text-sm text-stone-300 font-normal leading-relaxed">
-                        {DAILY_OFFER_CONFIG.description}
+                        {dailyOffer.description}
                       </p>
                     </div>
 
-                    {/* FILA DE INTERACCIÓN: Botón + Indicador «¡Tocá la imagen y descubrilo!» */}
+                    {/* FILA DE INTERACCIÓN */}
                     <div className="pt-1 flex flex-wrap items-center justify-between gap-3 relative">
                       {/* Botón Principal «Ver más detalles» */}
                       <div className="inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 rounded-full bg-[#F5A623] group-hover:bg-[#f8b438] text-stone-950 font-extrabold text-xs sm:text-sm shadow-xl transition-all duration-300 transform group-hover:translate-x-0.5 shrink-0">
@@ -189,7 +193,6 @@ export const Hero: React.FC = () => {
 
                       {/* Indicador con flecha curva y mano interactiva */}
                       <div className="flex items-center gap-1.5 sm:gap-2 ml-auto">
-                        {/* Flecha curva dibujada en SVG apuntando hacia la imagen */}
                         <svg
                           className="w-8 h-8 sm:w-10 sm:h-10 text-[#F5A623] shrink-0 -rotate-12"
                           viewBox="0 0 40 40"
@@ -213,7 +216,6 @@ export const Hero: React.FC = () => {
                           </span>
                         </div>
 
-                        {/* Icono de cursor táctil / mano con ondas */}
                         <div 
                           className="relative w-8 h-8 sm:w-9 sm:h-9 text-white shrink-0 ml-0.5 filter drop-shadow-[0_2px_8px_rgba(245,166,35,0.8)]"
                           aria-hidden="true"
@@ -227,11 +229,9 @@ export const Hero: React.FC = () => {
                             strokeLinecap="round"
                             strokeLinejoin="round"
                           >
-                            {/* Rayos / ondas de click */}
                             <path d="M12 2v2.5" className="stroke-amber-400 stroke-[2.5]" />
                             <path d="M5.5 5.5l1.8 1.8" className="stroke-amber-400 stroke-[2.5]" />
                             <path d="M2 12h2.5" className="stroke-amber-400 stroke-[2.5]" />
-                            {/* Puntero de mano */}
                             <path
                               d="M10 13V6a2 2 0 0 1 4 0v5"
                               fill="#FFFFFF"

@@ -8,6 +8,7 @@ export const BEBIDAS_DATA: Bebida[] = [
     name: 'Coca-Cola Original',
     volume: '600 cc',
     category: 'Individuales',
+    image: '/images/bebidas/coca-cola-600.jpg',
     price: BEBIDAS_PRICING['coca-cola-600'],
   },
   {
@@ -16,6 +17,7 @@ export const BEBIDAS_DATA: Bebida[] = [
     volume: '600 cc',
     category: 'Individuales',
     badge: 'Sin Azúcar',
+    image: '/images/bebidas/coca-cola-zero-600.jpg',
     price: BEBIDAS_PRICING['coca-cola-zero-600'],
   },
   {
@@ -23,6 +25,7 @@ export const BEBIDAS_DATA: Bebida[] = [
     name: 'Sprite Lima-Limón',
     volume: '600 cc',
     category: 'Individuales',
+    image: '/images/bebidas/sprite-600.jpg',
     price: BEBIDAS_PRICING['sprite-600'],
   },
   {
@@ -30,6 +33,7 @@ export const BEBIDAS_DATA: Bebida[] = [
     name: 'Fanta Naranja',
     volume: '600 cc',
     category: 'Individuales',
+    image: '/images/bebidas/fanta-600.jpg',
     price: BEBIDAS_PRICING['fanta-600'],
   },
   {
@@ -38,6 +42,7 @@ export const BEBIDAS_DATA: Bebida[] = [
     volume: '354 cc',
     category: 'Individuales',
     badge: 'Lata',
+    image: '/images/bebidas/fanta-carmesi-354.jpg',
     price: BEBIDAS_PRICING['fanta-carmesi-354'],
   },
 
@@ -48,6 +53,7 @@ export const BEBIDAS_DATA: Bebida[] = [
     volume: '500 cc',
     category: 'Aguas & Isotónicas',
     badge: 'Sin Gas',
+    image: '/images/bebidas/agua-benedictino-500.jpg',
     price: BEBIDAS_PRICING['agua-benedictino-500'],
   },
   {
@@ -55,6 +61,7 @@ export const BEBIDAS_DATA: Bebida[] = [
     name: 'Aquarius Pera',
     volume: '600 cc',
     category: 'Aguas & Isotónicas',
+    image: '/images/bebidas/aquarius-pera-600.jpg',
     price: BEBIDAS_PRICING['aquarius-pera-600'],
   },
   {
@@ -62,6 +69,7 @@ export const BEBIDAS_DATA: Bebida[] = [
     name: 'Aquarius Pomelo',
     volume: '600 cc',
     category: 'Aguas & Isotónicas',
+    image: '/images/bebidas/aquarius-pomelo-600.jpg',
     price: BEBIDAS_PRICING['aquarius-pomelo-600'],
   },
   {
@@ -70,6 +78,7 @@ export const BEBIDAS_DATA: Bebida[] = [
     volume: '500 cc',
     category: 'Aguas & Isotónicas',
     badge: 'Isotónica',
+    image: '/images/bebidas/powerade-uva-500.jpg',
     price: BEBIDAS_PRICING['powerade-uva-500'],
   },
 
@@ -80,6 +89,7 @@ export const BEBIDAS_DATA: Bebida[] = [
     volume: '1,75 L',
     category: 'Grandes',
     badge: 'Familiar',
+    image: '/images/bebidas/coca-cola-175.jpg',
     price: BEBIDAS_PRICING['coca-cola-175'],
   },
   {
@@ -88,6 +98,7 @@ export const BEBIDAS_DATA: Bebida[] = [
     volume: '1,75 L',
     category: 'Grandes',
     badge: 'Familiar Sin Azúcar',
+    image: '/images/bebidas/coca-cola-zero-175.jpg',
     price: BEBIDAS_PRICING['coca-cola-zero-175'],
   },
   {
@@ -96,6 +107,7 @@ export const BEBIDAS_DATA: Bebida[] = [
     volume: '1,5 L',
     category: 'Grandes',
     badge: 'Familiar',
+    image: '/images/bebidas/aquarius-manzana-1500.jpg',
     price: BEBIDAS_PRICING['aquarius-manzana-1500'],
   },
   {
@@ -104,6 +116,7 @@ export const BEBIDAS_DATA: Bebida[] = [
     volume: '1,5 L',
     category: 'Grandes',
     badge: 'Familiar',
+    image: '/images/bebidas/aquarius-pera-1500.jpg',
     price: BEBIDAS_PRICING['aquarius-pera-1500'],
   },
 ];

@@ -127,74 +127,55 @@ export const StepExtras: React.FC<StepExtrasProps> = ({
 
       {/* SECCIÓN 1: ADEREZOS (PRIMERO) */}
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h4 className="font-serif text-lg font-bold text-gourmet-dark flex items-center gap-2">
-              <span>🥫</span>
-              <span>Aderezos</span>
-            </h4>
-            <p className="text-xs text-gourmet-muted mt-0.5">
-              Elegí tus salsas favoritas para acompañar tu sándwich o continuá sin aderezo.
-            </p>
-          </div>
-          <span className="text-xs font-bold text-emerald-700 uppercase bg-emerald-100/90 border border-emerald-200 px-2.5 py-1 rounded-lg">
-            Sin Cargo
-          </span>
-        </div>
-
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-4">
-          {/* Opción 1: Sin Aderezo */}
-          <motion.div
-            whileHover={{ y: -2 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={handleClearAderezos}
-            className={`relative flex flex-col justify-between p-2.5 sm:p-4 rounded-xl sm:rounded-2xl cursor-pointer transition-all border-2 select-none overflow-hidden ${
-              isNoAderezoSelected
-                ? 'bg-amber-50/60 border-amber-600 shadow-gourmet-sm ring-2 ring-amber-500/20'
-                : 'bg-white border-gourmet-border hover:border-amber-600/40 hover:shadow-gourmet-sm'
-            }`}
-          >
-            {/* Visual Sin Aderezo */}
-            <div className="relative h-16 sm:h-24 rounded-lg sm:rounded-xl overflow-hidden bg-stone-100/80 border border-stone-200/70 p-2 flex items-center justify-center mb-2 sm:mb-2.5">
-              <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-full bg-stone-200/80 flex items-center justify-center text-stone-500 shadow-inner">
-                <Ban className="w-4 h-4 sm:w-6 sm:h-6 stroke-[2.2]" />
-              </div>
-              <div
-                className={`absolute top-1.5 right-1.5 sm:top-2 sm:right-2 w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center shadow-sm transition-all ${
-                  isNoAderezoSelected
-                    ? 'bg-amber-600 text-white'
-                    : 'bg-white/90 text-stone-400 border border-stone-200'
-                }`}
-              >
-                {isNoAderezoSelected ? <Check className="w-3 h-3 sm:w-3.5 sm:h-3.5 stroke-[3]" /> : <Plus className="w-3 h-3 sm:w-3.5 sm:h-3.5" />}
-              </div>
-            </div>
-
-            {/* Info */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
             <div>
-              <h5 className="font-serif font-bold text-xs sm:text-base text-gourmet-dark leading-tight line-clamp-1 sm:line-clamp-none">
-                Sin aderezo
-              </h5>
-              <p className="text-[10px] sm:text-xs text-gourmet-muted mt-0.5 sm:mt-1 leading-snug line-clamp-1 sm:line-clamp-2">
-                Sándwich clásico sin salsas ni aderezos agregados.
+              <h4 className="font-serif text-lg font-bold text-gourmet-dark flex items-center gap-2">
+                <span>🥫</span>
+                <span>Aderezos</span>
+              </h4>
+              <p className="text-xs text-gourmet-muted mt-0.5">
+                Elegí tus salsas favoritas para acompañar tu sándwich o continuá sin aderezo.
               </p>
             </div>
 
-            {/* Pie */}
-            <div className="mt-2 sm:mt-3 pt-1.5 sm:pt-2 border-t border-gourmet-border/60 flex items-center justify-between">
-              <span className="text-[9px] sm:text-[11px] font-bold text-emerald-700 uppercase">
-                Sin Cargo
-              </span>
-              <span
-                className={`text-[10px] sm:text-xs font-bold ${
-                  isNoAderezoSelected ? 'text-amber-700' : 'text-stone-400'
-                }`}
-              >
-                {isNoAderezoSelected ? 'Elegido' : 'Elegir'}
-              </span>
-            </div>
-          </motion.div>
+            {/* BOTÓN LATENTE "SIN ADEREZO" */}
+            <motion.button
+              type="button"
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.96 }}
+              onClick={handleClearAderezos}
+              className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold tracking-wide transition-all shadow-sm cursor-pointer border-2 ${
+                isNoAderezoSelected
+                  ? 'bg-amber-100/90 text-amber-900 border-amber-400 shadow-amber-200/50'
+                  : 'bg-amber-700 text-white border-amber-800 animate-pulse hover:bg-amber-800 hover:animate-none'
+              }`}
+              title="Continuar sin aderezos hacia los extras"
+            >
+              <Ban className="w-3.5 h-3.5 stroke-[2.5]" />
+              <span>SIN ADEREZO</span>
+              <ArrowDown className="w-3.5 h-3.5 ml-0.5 stroke-[2.5]" />
+            </motion.button>
+          </div>
 
+          <div className="flex items-center gap-3">
+            <span className="text-xs font-bold text-emerald-700 uppercase bg-emerald-100/90 border border-emerald-200 px-2.5 py-1 rounded-lg">
+              Sin Cargo
+            </span>
+            {selectedAderezos.length > 0 && (
+              <button
+                type="button"
+                onClick={scrollToExtras}
+                className="inline-flex items-center gap-1 text-xs font-bold text-amber-800 hover:text-amber-950 hover:underline cursor-pointer"
+              >
+                <span>Ir a Extras</span>
+                <ArrowDown className="w-3 h-3" />
+              </button>
+            )}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
           {/* Opciones de Salsas */}
           {ADEREZOS_DATA.map((aderezo) => {
             const isSelected = isAderezoSelected(aderezo.id);
@@ -389,72 +370,41 @@ export const StepExtras: React.FC<StepExtrasProps> = ({
         id="bebidas-section"
         className="space-y-4 pt-6 border-t border-gourmet-border/60 scroll-mt-24 sm:scroll-mt-28"
       >
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <div>
-            <h4 className="font-serif text-lg font-bold text-gourmet-dark flex items-center gap-2">
-              <span>🥤</span>
-              <span>Bebidas Frescas</span>
-            </h4>
-            <p className="text-xs text-gourmet-muted mt-0.5">
-              Elegí una bebida bien fría para acompañar tu sándwich o continuá sin bebida.
-            </p>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div>
+              <h4 className="font-serif text-lg font-bold text-gourmet-dark flex items-center gap-2">
+                <span>🥤</span>
+                <span>Bebidas Frescas</span>
+              </h4>
+              <p className="text-xs text-gourmet-muted mt-0.5">
+                Elegí una bebida bien fría para acompañar tu sándwich o continuá sin bebida.
+              </p>
+            </div>
+
+            {/* BOTÓN LATENTE "SIN BEBIDA" */}
+            <motion.button
+              type="button"
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.96 }}
+              onClick={handleClearBebidas}
+              className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold tracking-wide transition-all shadow-sm cursor-pointer border-2 ${
+                isNoBebidaSelected
+                  ? 'bg-blue-100/90 text-blue-900 border-blue-400 shadow-blue-200/50'
+                  : 'bg-blue-700 text-white border-blue-800 animate-pulse hover:bg-blue-800 hover:animate-none'
+              }`}
+              title="Continuar sin bebidas para agregar tu sándwich al pedido"
+            >
+              <Ban className="w-3.5 h-3.5 stroke-[2.5]" />
+              <span>SIN BEBIDA</span>
+              <Check className="w-3.5 h-3.5 ml-0.5 stroke-[2.5]" />
+            </motion.button>
           </div>
+
           <span className="text-xs text-gourmet-muted">Opcional con precio individual</span>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2.5 sm:gap-4">
-          {/* Opción: Sin Bebida */}
-          <motion.div
-            whileHover={{ y: -2 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={handleClearBebidas}
-            className={`relative flex flex-col justify-between p-2.5 sm:p-4 rounded-xl sm:rounded-2xl cursor-pointer transition-all border-2 select-none overflow-hidden ${
-              isNoBebidaSelected
-                ? 'bg-blue-50/60 border-blue-600 shadow-gourmet-sm ring-2 ring-blue-500/20'
-                : 'bg-white border-gourmet-border hover:border-blue-600/40 hover:shadow-gourmet-sm'
-            }`}
-          >
-            {/* Visual Sin Bebida */}
-            <div className="relative h-20 sm:h-28 rounded-lg sm:rounded-xl overflow-hidden bg-stone-100/80 border border-stone-200/70 p-2 flex items-center justify-center mb-2 sm:mb-2.5">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-stone-200/80 flex items-center justify-center text-stone-500 shadow-inner">
-                <Ban className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.2]" />
-              </div>
-              <div
-                className={`absolute top-1.5 right-1.5 sm:top-2 sm:right-2 w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center shadow-sm transition-all ${
-                  isNoBebidaSelected
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-white/90 text-stone-400 border border-stone-200'
-                }`}
-              >
-                {isNoBebidaSelected ? <Check className="w-3 h-3 sm:w-3.5 sm:h-3.5 stroke-[3]" /> : <Plus className="w-3 h-3 sm:w-3.5 sm:h-3.5" />}
-              </div>
-            </div>
-
-            {/* Info */}
-            <div>
-              <h5 className="font-serif font-bold text-xs sm:text-base text-gourmet-dark leading-tight line-clamp-1 sm:line-clamp-none">
-                Sin bebida
-              </h5>
-              <p className="text-[10px] sm:text-xs text-gourmet-muted mt-0.5 sm:mt-1 leading-snug line-clamp-1 sm:line-clamp-2">
-                Solo el sándwich preparado, sin bebidas agregadas.
-              </p>
-            </div>
-
-            {/* Pie */}
-            <div className="mt-2 sm:mt-3 pt-1.5 sm:pt-2 border-t border-gourmet-border/60 flex items-center justify-between">
-              <span className="text-[9px] sm:text-[11px] font-bold text-stone-500 uppercase">
-                Opcional
-              </span>
-              <span
-                className={`text-[10px] sm:text-xs font-bold ${
-                  isNoBebidaSelected ? 'text-blue-700' : 'text-stone-400'
-                }`}
-              >
-                {isNoBebidaSelected ? 'Elegido' : 'Elegir'}
-              </span>
-            </div>
-          </motion.div>
-
           {/* Opciones de Bebidas */}
           {BEBIDAS_DATA.map((bebida) => {
             const isSelected = isBebidaSelected(bebida.id);
@@ -472,13 +422,19 @@ export const StepExtras: React.FC<StepExtrasProps> = ({
                 }`}
               >
                 {/* Visual Bebida */}
-                <div className="relative h-20 sm:h-28 rounded-lg sm:rounded-xl overflow-hidden bg-gradient-to-b from-stone-50 to-amber-50/30 border border-stone-200/70 p-2 flex flex-col items-center justify-center mb-2 sm:mb-2.5">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-white shadow-xs border border-stone-200/60 flex items-center justify-center text-blue-800">
-                    <GlassWater className="w-6 h-6 stroke-[1.8]" />
-                  </div>
-                  <span className="text-[10px] sm:text-xs font-bold text-stone-600 mt-1 bg-stone-200/60 px-2 py-0.5 rounded-md">
-                    {bebida.volume}
-                  </span>
+                <div className="relative h-20 sm:h-28 rounded-lg sm:rounded-xl overflow-hidden bg-white/90 border border-stone-200/70 p-1.5 flex items-center justify-center mb-2 sm:mb-2.5">
+                  {bebida.image ? (
+                    <img
+                      src={bebida.image}
+                      alt={bebida.name}
+                      className="max-h-16 sm:max-h-24 w-auto object-contain transform hover:scale-105 transition-transform duration-300"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-stone-100 shadow-xs border border-stone-200/60 flex items-center justify-center text-blue-800">
+                      <GlassWater className="w-6 h-6 stroke-[1.8]" />
+                    </div>
+                  )}
 
                   {bebida.badge && (
                     <div className="absolute top-1 left-1 sm:top-1.5 sm:left-1.5 scale-75 sm:scale-90 origin-top-left">

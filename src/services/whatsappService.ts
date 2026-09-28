@@ -150,6 +150,11 @@ export function formatWhatsAppMessage(items: CartItem[], customerData?: Customer
       lines.push(`   - _Extras:_ Sin extras`);
     }
 
+    if (item.bebidas && item.bebidas.length > 0) {
+      const bebidasList = item.bebidas.map((b) => `${b.name} (${b.volume})`).join(', ');
+      lines.push(`   - _Bebidas:_ ${bebidasList}`);
+    }
+
     if (item.quantity > 1) {
       lines.push(`   - _Unitario:_ ${formatCurrency(item.unitPrice)} | _Subtotal:_ ${formatCurrency(item.subtotal)}`);
     } else {

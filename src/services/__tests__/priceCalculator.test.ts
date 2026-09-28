@@ -8,9 +8,23 @@ import {
 import { FIAMBRES_DATA } from '../../data/fiambres';
 import { QUESOS_DATA } from '../../data/quesos';
 import { EXTRAS_DATA } from '../../data/extras';
+import { BEBIDAS_DATA } from '../../data/bebidas';
 import { CartItem } from '../../types/product';
 
 describe('PriceCalculator Service', () => {
+  it('debe calcular correctamente un sándwich con Bebida sumada', () => {
+    const jamonCocido = FIAMBRES_DATA.find((f) => f.id === 'jamon-cocido')!;
+    const quesoClasico = QUESOS_DATA.find((q) => q.id === 'queso-clasico')!;
+    const coca600 = BEBIDAS_DATA.find((b) => b.id === 'coca-cola-600')!;
+
+    // Base $4200 + Coca 600cc $2600 = $6800
+    const unitPrice = calculateSandwichUnitPrice(jamonCocido.id, quesoClasico.id, [], [coca600]);
+    expect(unitPrice).toBe(6800);
+
+    const subtotal = calculateSandwichSubtotal(unitPrice, 2);
+    expect(subtotal).toBe(13600);
+  });
+
   it('debe tener precios válidos para las 128 combinaciones posibles (16 fiambres x 8 quesos)', () => {
     expect(FIAMBRES_DATA).toHaveLength(16);
     expect(QUESOS_DATA).toHaveLength(8);

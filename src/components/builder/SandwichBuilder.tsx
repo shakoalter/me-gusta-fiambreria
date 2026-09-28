@@ -16,6 +16,7 @@ export const SandwichBuilder: React.FC = () => {
     selectedQueso,
     selectedExtras,
     selectedAderezos,
+    selectedBebidas,
     quantity,
     currentStep,
     editingId,
@@ -26,10 +27,14 @@ export const SandwichBuilder: React.FC = () => {
     selectFiambre,
     selectQueso,
     toggleExtra,
+    clearExtras,
     isExtraSelected,
     toggleAderezo,
     isAderezoSelected,
     clearAderezos,
+    toggleBebida,
+    isBebidaSelected,
+    clearBebidas,
     incrementQuantity,
     decrementQuantity,
     resetBuilder,
@@ -193,10 +198,15 @@ export const SandwichBuilder: React.FC = () => {
             selectedExtras={selectedExtras}
             onToggleExtra={toggleExtra}
             isExtraSelected={isExtraSelected}
+            onClearExtras={clearExtras}
             selectedAderezos={selectedAderezos}
             onToggleAderezo={toggleAderezo}
             isAderezoSelected={isAderezoSelected}
             onClearAderezos={clearAderezos}
+            selectedBebidas={selectedBebidas}
+            onToggleBebida={toggleBebida}
+            isBebidaSelected={isBebidaSelected}
+            onClearBebidas={clearBebidas}
           />
         )}
       </div>
@@ -207,6 +217,7 @@ export const SandwichBuilder: React.FC = () => {
         selectedQueso={selectedQueso}
         selectedExtras={selectedExtras}
         selectedAderezos={selectedAderezos}
+        selectedBebidas={selectedBebidas}
         quantity={quantity}
         unitPrice={unitPrice}
         subtotal={subtotal}

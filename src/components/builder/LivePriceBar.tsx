@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShoppingBag, ArrowRight, CheckCircle2 } from 'lucide-react';
-import { Fiambre, Queso, Extra, Aderezo } from '../../types/product';
+import { Fiambre, Queso, Extra, Aderezo, Bebida } from '../../types/product';
 import { QuantitySelector } from '../common/QuantitySelector';
 import { PriceTag } from '../common/PriceTag';
 import { Button } from '../common/Button';
@@ -11,6 +11,7 @@ interface LivePriceBarProps {
   selectedQueso: Queso | null;
   selectedExtras: Extra[];
   selectedAderezos?: Aderezo[];
+  selectedBebidas?: Bebida[];
   quantity: number;
   unitPrice: number;
   subtotal: number;
@@ -27,6 +28,7 @@ export const LivePriceBar: React.FC<LivePriceBarProps> = ({
   selectedQueso,
   selectedExtras,
   selectedAderezos = [],
+  selectedBebidas = [],
   quantity,
   unitPrice,
   subtotal,
@@ -109,6 +111,15 @@ export const LivePriceBar: React.FC<LivePriceBarProps> = ({
                     </span>
                   ) : (
                     <span className="italic">Ninguno</span>
+                  )}
+                  {selectedBebidas.length > 0 && (
+                    <>
+                      <span className="text-stone-300">•</span>
+                      <span>Bebidas:</span>
+                      <span className="font-semibold text-blue-800">
+                        {selectedBebidas.map((b) => b.name).join(', ')}
+                      </span>
+                    </>
                   )}
                   <span className="text-stone-300">•</span>
                   <span>Unitario: <strong className="text-gourmet-dark">{unitPrice > 0 ? `$${unitPrice.toLocaleString('es-AR')}` : ''}</strong></span>

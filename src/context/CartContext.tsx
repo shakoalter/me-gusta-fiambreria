@@ -72,6 +72,16 @@ export function areSandwichesEquivalent(
     return false;
   }
 
+  // Comparación de bebidas (conjunto de IDs)
+  const aBebidas = a.bebidas ?? [];
+  const bBebidas = b.bebidas ?? [];
+  if (aBebidas.length !== bBebidas.length) {
+    return false;
+  }
+  if (!aBebidas.every((ab) => bBebidas.some((bb) => bb.id === ab.id))) {
+    return false;
+  }
+
   // Comparación de notas
   const aNotes = (a.notes ?? '').trim();
   const bNotes = (b.notes ?? '').trim();

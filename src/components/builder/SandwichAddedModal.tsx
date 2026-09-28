@@ -117,6 +117,14 @@ export const SandwichAddedModal: React.FC<SandwichAddedModalProps> = ({
                 <span className="text-stone-400 italic">Sin extras</span>
               )}
             </p>
+            {sandwich.bebidas && sandwich.bebidas.length > 0 && (
+              <p>
+                <span className="font-semibold text-gourmet-muted">Bebidas:</span>{' '}
+                <span className="font-medium text-blue-800">
+                  {sandwich.bebidas.map((b) => `${b.name} (${b.volume})`).join(', ')}
+                </span>
+              </p>
+            )}
           </div>
 
           {/* Total acumulado en carrito */}

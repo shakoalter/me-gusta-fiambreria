@@ -1,4 +1,4 @@
-import { FiambreId, QuesoId, ExtraId } from '../types/product';
+import { FiambreId, QuesoId, ExtraId, BebidaId } from '../types/product';
 
 /**
  * Matriz canónica de precios [FiambreId][QuesoId]
@@ -173,4 +173,20 @@ export const EXTRAS_PRICING: Record<ExtraId, number> = {
   'cebollitas': 1300,
   'pepinos-agridulces': 1600,
   'pepinitos-vinagre': 1500,
+};
+
+export const BEBIDAS_PRICING: Record<BebidaId, number> = {
+  'agua-benedictino-500': 1900,
+  'coca-cola-600': 2600,
+  'coca-cola-zero-600': 2600,
+  'fanta-600': 2600,
+  'fanta-carmesi-354': 2100,
+  'sprite-600': 2600,
+  'powerade-uva-500': 2100,
+  'aquarius-pera-600': 2100,
+  'aquarius-pomelo-600': 2100,
+  'coca-cola-175': 5100,
+  'coca-cola-zero-175': 5100,
+  'aquarius-manzana-1500': 3100,
+  'aquarius-pera-1500': 3100,
 };

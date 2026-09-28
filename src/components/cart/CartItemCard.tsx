@@ -93,6 +93,14 @@ export const CartItemCard: React.FC<CartItemCardProps> = ({ item }) => {
             <span className="text-stone-400 italic">Sin extras</span>
           )}
         </div>
+        {item.bebidas && item.bebidas.length > 0 && (
+          <div>
+            <span className="font-semibold text-gourmet-muted mr-1.5">Bebidas:</span>
+            <span className="font-medium text-blue-800">
+              {item.bebidas.map((b) => `${b.name} (${b.volume})`).join(', ')}
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Controles de Cantidad y Subtotal */}

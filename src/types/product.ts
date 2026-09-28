@@ -35,6 +35,21 @@ export type ExtraId =
 
 export type AderezoId = 'mayonesa' | 'ketchup' | 'mostaza';
 
+export type BebidaId =
+  | 'agua-benedictino-500'
+  | 'coca-cola-600'
+  | 'coca-cola-zero-600'
+  | 'fanta-600'
+  | 'fanta-carmesi-354'
+  | 'sprite-600'
+  | 'powerade-uva-500'
+  | 'aquarius-pera-600'
+  | 'aquarius-pomelo-600'
+  | 'coca-cola-175'
+  | 'coca-cola-zero-175'
+  | 'aquarius-manzana-1500'
+  | 'aquarius-pera-1500';
+
 export type FiambreCategory = 'Clásicos' | 'Especiales' | 'Curados & Ahumados';
 
 export interface Fiambre {
@@ -73,14 +88,25 @@ export interface Aderezo {
   color?: string;
 }
 
+export interface Bebida {
+  id: BebidaId;
+  name: string;
+  volume: string;
+  price: number;
+  category: 'Individuales' | 'Grandes' | 'Aguas & Isotónicas';
+  image?: string;
+  badge?: string;
+}
+
 export interface SandwichCustomization {
   id: string; // Identificador único de instancia para carrito y edición
   fiambre: Fiambre;
   queso: Queso;
   extras: Extra[];
   aderezos?: Aderezo[];
+  bebidas?: Bebida[];
   quantity: number;
-  unitPrice: number; // Precio (Fiambre + Queso) + sum(Extras)
+  unitPrice: number; // Precio (Fiambre + Queso) + sum(Extras) + sum(Bebidas)
   subtotal: number;  // unitPrice * quantity
   notes?: string;
 }

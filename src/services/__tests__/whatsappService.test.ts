@@ -83,6 +83,37 @@ describe('WhatsAppService', () => {
     expect(message).not.toContain('demora aproximada');
   });
 
+  it('debe incluir las bebidas en el formato del mensaje de WhatsApp si fueron seleccionadas', () => {
+    const bondiola = FIAMBRES_DATA.find((f) => f.id === 'bondiola')!;
+    const quesoAhumado = QUESOS_DATA.find((q) => q.id === 'queso-ahumado')!;
+
+    const item: CartItem = {
+      id: 'item-1',
+      fiambre: bondiola,
+      queso: quesoAhumado,
+      extras: [],
+      bebidas: [
+        {
+          id: 'coca-cola-zero-600',
+          name: 'Coca-Cola Zero',
+          volume: '600 cc',
+          category: 'Individuales',
+          price: 1800,
+        },
+      ],
+      quantity: 1,
+      unitPrice: 8500,
+      subtotal: 8500,
+    };
+
+    const message = formatWhatsAppMessage([item], {
+      customerName: 'Lucas',
+      orderCode: 'MG - 01',
+    });
+
+    expect(message).toContain('_Bebidas:_ Coca-Cola Zero (600 cc)');
+  });
+
   it('debe generar una URL wa.me válida y codificada correctamente', () => {
     const bondiola = FIAMBRES_DATA.find((f) => f.id === 'bondiola')!;
     const quesoAhumado = QUESOS_DATA.find((q) => q.id === 'queso-ahumado')!;

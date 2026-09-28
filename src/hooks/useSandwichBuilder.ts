@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback } from 'react';
-import { Fiambre, Queso, Extra, Aderezo, SandwichCustomization, CartItem } from '../types/product';
+import { Fiambre, Queso, Extra, Aderezo, Bebida, SandwichCustomization, CartItem } from '../types/product';
 import { calculateSandwichUnitPrice, calculateSandwichSubtotal } from '../services/priceCalculator';
 
 export function useSandwichBuilder(initialItem?: CartItem | null) {
@@ -7,6 +7,7 @@ export function useSandwichBuilder(initialItem?: CartItem | null) {
   const [selectedQueso, setSelectedQueso] = useState<Queso | null>(initialItem?.queso ?? null);
   const [selectedExtras, setSelectedExtras] = useState<Extra[]>(initialItem?.extras ?? []);
   const [selectedAderezos, setSelectedAderezos] = useState<Aderezo[]>(initialItem?.aderezos ?? []);
+  const [selectedBebidas, setSelectedBebidas] = useState<Bebida[]>(initialItem?.bebidas ?? []);
   const [quantity, setQuantityState] = useState<number>(initialItem?.quantity ?? 1);
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [editingId, setEditingId] = useState<string | null>(initialItem?.id ?? null);
@@ -14,8 +15,8 @@ export function useSandwichBuilder(initialItem?: CartItem | null) {
   // Calcula el precio unitario en tiempo real
   const unitPrice = useMemo(() => {
     if (!selectedFiambre || !selectedQueso) return 0;
-    return calculateSandwichUnitPrice(selectedFiambre.id, selectedQueso.id, selectedExtras);
-  }, [selectedFiambre, selectedQueso, selectedExtras]);
+    return calculateSandwichUnitPrice(selectedFiambre.id, selectedQueso.id, selectedExtras, selectedBebidas);
+  }, [selectedFiambre, selectedQueso, selectedExtras, selectedBebidas]);
 
   // Calcula el subtotal en tiempo real
   const subtotal = useMemo(() => {
@@ -41,6 +42,10 @@ export function useSandwichBuilder(initialItem?: CartItem | null) {
       }
       return [...prev, extra];
     });
+  }, []);
+
+  const clearExtras = useCallback(() => {
+    setSelectedExtras([]);
   }, []);
 
   const isExtraSelected = useCallback(
@@ -71,6 +76,27 @@ export function useSandwichBuilder(initialItem?: CartItem | null) {
     setSelectedAderezos([]);
   }, []);
 
+  const toggleBebida = useCallback((bebida: Bebida) => {
+    setSelectedBebidas((prev) => {
+      const exists = prev.some((b) => b.id === bebida.id);
+      if (exists) {
+        return prev.filter((b) => b.id !== bebida.id);
+      }
+      return [...prev, bebida];
+    });
+  }, []);
+
+  const isBebidaSelected = useCallback(
+    (bebidaId: string) => {
+      return selectedBebidas.some((b) => b.id === bebidaId);
+    },
+    [selectedBebidas]
+  );
+
+  const clearBebidas = useCallback(() => {
+    setSelectedBebidas([]);
+  }, []);
+
   const setQuantity = useCallback((qty: number) => {
     setQuantityState(Math.max(1, Math.min(99, qty)));
   }, []);
@@ -88,6 +114,7 @@ export function useSandwichBuilder(initialItem?: CartItem | null) {
     setSelectedQueso(null);
     setSelectedExtras([]);
     setSelectedAderezos([]);
+    setSelectedBebidas([]);
     setQuantityState(1);
     setCurrentStep(1);
     setEditingId(null);
@@ -98,6 +125,7 @@ export function useSandwichBuilder(initialItem?: CartItem | null) {
     setSelectedQueso(item.queso);
     setSelectedExtras(item.extras);
     setSelectedAderezos(item.aderezos ?? []);
+    setSelectedBebidas(item.bebidas ?? []);
     setQuantityState(item.quantity);
     setEditingId(item.id);
     setCurrentStep(1);
@@ -107,7 +135,12 @@ export function useSandwichBuilder(initialItem?: CartItem | null) {
     if (!selectedFiambre || !selectedQueso) return null;
 
     const id = editingId || `sw_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
-    const finalUnitPrice = calculateSandwichUnitPrice(selectedFiambre.id, selectedQueso.id, selectedExtras);
+    const finalUnitPrice = calculateSandwichUnitPrice(
+      selectedFiambre.id,
+      selectedQueso.id,
+      selectedExtras,
+      selectedBebidas
+    );
     const finalSubtotal = calculateSandwichSubtotal(finalUnitPrice, quantity);
 
     return {
@@ -116,17 +149,19 @@ export function useSandwichBuilder(initialItem?: CartItem | null) {
       queso: selectedQueso,
       extras: selectedExtras,
       aderezos: selectedAderezos,
+      bebidas: selectedBebidas,
       quantity,
       unitPrice: finalUnitPrice,
       subtotal: finalSubtotal,
     };
-  }, [selectedFiambre, selectedQueso, selectedExtras, selectedAderezos, quantity, editingId]);
+  }, [selectedFiambre, selectedQueso, selectedExtras, selectedAderezos, selectedBebidas, quantity, editingId]);
 
   return {
     selectedFiambre,
     selectedQueso,
     selectedExtras,
     selectedAderezos,
+    selectedBebidas,
     quantity,
     currentStep,
     editingId,
@@ -137,10 +172,14 @@ export function useSandwichBuilder(initialItem?: CartItem | null) {
     selectFiambre,
     selectQueso,
     toggleExtra,
+    clearExtras,
     isExtraSelected,
     toggleAderezo,
     isAderezoSelected,
     clearAderezos,
+    toggleBebida,
+    isBebidaSelected,
+    clearBebidas,
     setQuantity,
     incrementQuantity,
     decrementQuantity,

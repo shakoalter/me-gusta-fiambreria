@@ -1,5 +1,5 @@
-import { FiambreId, QuesoId, Extra, CartItem } from '../types/product';
-import { SANDWICH_PRICING_MATRIX, EXTRAS_PRICING } from '../data/pricingMatrix';
+import { FiambreId, QuesoId, Extra, Bebida, CartItem } from '../types/product';
+import { SANDWICH_PRICING_MATRIX, EXTRAS_PRICING, BEBIDAS_PRICING } from '../data/pricingMatrix';
 
 /**
  * Obtiene el precio base exacto de la combinación Fiambre + Queso
@@ -29,16 +29,29 @@ export function calculateExtrasTotal(extras: Extra[]): number {
 }
 
 /**
- * Calcula el precio unitario completo de un sándwich (Base Fiambre+Queso + Extras)
+ * Calcula la suma total de las bebidas seleccionadas
+ */
+export function calculateBebidasTotal(bebidas?: Bebida[]): number {
+  if (!bebidas || bebidas.length === 0) return 0;
+  return bebidas.reduce((sum, bebida) => {
+    const price = BEBIDAS_PRICING[bebida.id] ?? bebida.price ?? 0;
+    return sum + price;
+  }, 0);
+}
+
+/**
+ * Calcula el precio unitario completo de un sándwich (Base Fiambre+Queso + Extras + Bebidas)
  */
 export function calculateSandwichUnitPrice(
   fiambreId: FiambreId,
   quesoId: QuesoId,
-  extras: Extra[]
+  extras: Extra[],
+  bebidas?: Bebida[]
 ): number {
   const basePrice = getBaseSandwichPrice(fiambreId, quesoId);
   const extrasPrice = calculateExtrasTotal(extras);
-  return basePrice + extrasPrice;
+  const bebidasPrice = calculateBebidasTotal(bebidas);
+  return basePrice + extrasPrice + bebidasPrice;
 }
 
 /**

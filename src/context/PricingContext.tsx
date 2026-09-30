@@ -28,10 +28,11 @@ interface PricingContextType {
   getFiambreMinPrice: (fiambreId: FiambreId) => number;
   getExtraPrice: (extraId: ExtraId) => number;
   getBebidaPrice: (bebidaId: BebidaId) => number;
+  isOutOfStock: (itemId: string) => boolean;
   calculateOfferPrice: (
     fiambreId?: FiambreId, 
     quesoId?: QuesoId, 
-    bebidaId?: BebidaId, 
+    bebidaId?: BebidaId | 'sin-bebida', 
     extras?: Extra[], 
     discount?: number
   ) => ReturnType<typeof calculateDailyOfferPrice>;
@@ -107,14 +108,20 @@ export const PricingProvider: React.FC<{ children: ReactNode }> = ({ children })
     return pricing.bebidas[bebidaId] ?? 0;
   };
 
+  const isOutOfStock = (itemId: string): boolean => {
+    return Boolean(pricing.outOfStock && pricing.outOfStock.includes(itemId));
+  };
+
   const calculateOfferPrice = (
     fiambreId: FiambreId = dailyOffer.fiambreId,
     quesoId: QuesoId = dailyOffer.quesoId,
-    bebidaId: BebidaId = dailyOffer.defaultBebidaId,
+    bebidaId?: BebidaId | 'sin-bebida',
     extras: Extra[] = [],
     discount: number = dailyOffer.discountPercentage
   ) => {
-    return calculateDailyOfferPrice(fiambreId, quesoId, bebidaId, extras, discount, pricing);
+    const targetBebidaId = bebidaId !== undefined ? bebidaId : dailyOffer.defaultBebidaId;
+    const finalBebidaId = (targetBebidaId === 'sin-bebida' || !targetBebidaId) ? undefined : (targetBebidaId as BebidaId);
+    return calculateDailyOfferPrice(fiambreId, quesoId, finalBebidaId, extras, discount, pricing);
   };
 
   const savePricing = async (newState: PricingState, adminEmail: string, description?: string) => {
@@ -147,6 +154,7 @@ export const PricingProvider: React.FC<{ children: ReactNode }> = ({ children })
       getFiambreMinPrice,
       getExtraPrice,
       getBebidaPrice,
+      isOutOfStock,
       calculateOfferPrice,
       savePricing,
       applyGlobalIncrease,

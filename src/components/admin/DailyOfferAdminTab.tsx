@@ -16,7 +16,7 @@ export const DailyOfferAdminTab: React.FC = () => {
 
   const [fiambreId, setFiambreId] = useState<FiambreId>(dailyOffer.fiambreId);
   const [quesoId, setQuesoId] = useState<QuesoId>(dailyOffer.quesoId);
-  const [defaultBebidaId, setDefaultBebidaId] = useState<BebidaId>(dailyOffer.defaultBebidaId);
+  const [defaultBebidaId, setDefaultBebidaId] = useState<BebidaId | 'sin-bebida'>(dailyOffer.defaultBebidaId || 'sin-bebida');
   const [discountPercent, setDiscountPercent] = useState<number>(Math.round(dailyOffer.discountPercentage * 100));
   const [badge, setBadge] = useState<string>(dailyOffer.badge || 'OFERTA DEL DÍA');
   const [title, setTitle] = useState<string>(dailyOffer.title);
@@ -26,17 +26,22 @@ export const DailyOfferAdminTab: React.FC = () => {
 
   const selectedFiambre = useMemo(() => FIAMBRES_DATA.find((f) => f.id === fiambreId), [fiambreId]);
   const selectedQueso = useMemo(() => QUESOS_DATA.find((q) => q.id === quesoId), [quesoId]);
-  const selectedBebida = useMemo(() => BEBIDAS_DATA.find((b) => b.id === defaultBebidaId), [defaultBebidaId]);
+  const selectedBebida = useMemo(() => defaultBebidaId === 'sin-bebida' ? undefined : BEBIDAS_DATA.find((b) => b.id === defaultBebidaId), [defaultBebidaId]);
 
   // Cálculo en tiempo real del combo simulado
   const calculation = useMemo(() => {
-    return calculateOfferPrice(fiambreId, quesoId, defaultBebidaId, [], discountPercent / 100);
+    const bebidaParam = defaultBebidaId === 'sin-bebida' ? undefined : (defaultBebidaId as BebidaId);
+    return calculateOfferPrice(fiambreId, quesoId, bebidaParam, [], discountPercent / 100);
   }, [fiambreId, quesoId, defaultBebidaId, discountPercent, calculateOfferPrice]);
 
   const handleAutoGenerateTexts = () => {
     if (selectedFiambre && selectedQueso) {
-      setTitle(`Sándwich de ${selectedFiambre.name} + ${selectedQueso.name} + Bebida`);
-      setDescription(`Disfrutá del exquisito ${selectedFiambre.name} con ${selectedQueso.name}. ¡Incluye una bebida a elección!`);
+      const bebidaText = defaultBebidaId === 'sin-bebida' ? '(Bebida opcional)' : '+ Bebida';
+      const descBebidaText = defaultBebidaId === 'sin-bebida'
+        ? '¡Podés sumar tu bebida favorita con descuento!'
+        : '¡Incluye una bebida a elección!';
+      setTitle(`Sándwich de ${selectedFiambre.name} + ${selectedQueso.name} ${bebidaText}`);
+      setDescription(`Disfrutá del exquisito ${selectedFiambre.name} con ${selectedQueso.name}. ${descBebidaText}`);
       showToast('Títulos generados automáticamente', 'info');
     }
   };
@@ -148,9 +153,10 @@ export const DailyOfferAdminTab: React.FC = () => {
               </label>
               <select
                 value={defaultBebidaId}
-                onChange={(e) => setDefaultBebidaId(e.target.value as BebidaId)}
+                onChange={(e) => setDefaultBebidaId(e.target.value as BebidaId | 'sin-bebida')}
                 className="w-full p-3 rounded-xl bg-stone-900 border border-stone-700 text-white text-sm focus:outline-none focus:border-[#F5A623] cursor-pointer"
               >
+                <option value="sin-bebida">Sin bebida por defecto (opcional para el cliente)</option>
                 {BEBIDAS_DATA.map((b) => (
                   <option key={b.id} value={b.id}>
                     {b.name} (${getBebidaPrice(b.id).toLocaleString('es-AR')})
@@ -317,7 +323,11 @@ export const DailyOfferAdminTab: React.FC = () => {
           <div className="p-3.5 rounded-xl bg-stone-900/90 border border-stone-800 text-[11px] text-stone-300 space-y-1">
             <span className="font-bold text-stone-200 block">Detalles del combo:</span>
             <p>• Sándwich base ({selectedFiambre?.name} + {selectedQueso?.name}): ${getSandwichPrice(fiambreId, quesoId).toLocaleString('es-AR')}</p>
-            <p>• Bebida incluida ({selectedBebida?.name}): ${getBebidaPrice(defaultBebidaId).toLocaleString('es-AR')}</p>
+            {selectedBebida ? (
+              <p>• Bebida sugerida ({selectedBebida.name}): ${getBebidaPrice(selectedBebida.id).toLocaleString('es-AR')}</p>
+            ) : (
+              <p>• Bebida: Sin bebida por defecto (opcional para el cliente)</p>
+            )}
           </div>
         </div>
 

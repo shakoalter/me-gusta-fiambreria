@@ -14,7 +14,7 @@ export interface DailyOfferConfig {
   image: string;
   fiambreId: FiambreId;
   quesoId: QuesoId;
-  defaultBebidaId: BebidaId;
+  defaultBebidaId?: BebidaId | 'sin-bebida';
   // Porcentaje de descuento aplicado al combo base (ej: 0.10 = 10% OFF)
   discountPercentage: number;
 }
@@ -22,9 +22,9 @@ export interface DailyOfferConfig {
 export const DAILY_OFFER_CONFIG: DailyOfferConfig = {
   id: 'promo-del-dia',
   badge: 'OFERTA DEL DÍA',
-  title: 'Sándwich de salame + queso + bebida 500/600cc',
-  subtitle: 'Sándwich de Salame + Queso + Bebida 500/600cc',
-  description: 'El clásico de siempre, con el mejor fiambre y queso artesanal. ¡Incluye una bebida de 500/600cc a elección!',
+  title: 'Sándwich de salame + queso (Bebida opcional)',
+  subtitle: 'Sándwich de Salame + Queso (Bebida opcional)',
+  description: 'El clásico de siempre, con el mejor fiambre y queso artesanal. ¡Podés sumar tu bebida favorita con descuento!',
   image: '/images/hero-sandwich.jpg',
   fiambreId: 'salame',
   quesoId: 'queso-clasico',

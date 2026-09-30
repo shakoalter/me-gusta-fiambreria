@@ -5,6 +5,7 @@ export interface PricingState {
   matrix: Record<FiambreId, Record<QuesoId, number>>;
   extras: Record<ExtraId, number>;
   bebidas: Record<BebidaId, number>;
+  outOfStock?: string[];
   updatedAt?: string;
   updatedBy?: string;
 }
@@ -15,7 +16,7 @@ export interface DailyOfferState extends DailyOfferConfig {
   updatedBy?: string;
 }
 
-export type AuditActionType = 'GLOBAL_INCREASE' | 'SINGLE_PRICE_UPDATE' | 'DAILY_OFFER_UPDATE' | 'MATRIX_RESET';
+export type AuditActionType = 'GLOBAL_INCREASE' | 'SINGLE_PRICE_UPDATE' | 'DAILY_OFFER_UPDATE' | 'MATRIX_RESET' | 'STOCK_UPDATE';
 
 export interface AuditLogEntry {
   id: string;

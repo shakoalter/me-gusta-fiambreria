@@ -58,6 +58,7 @@ export const DEFAULT_PRICING_STATE: PricingState = {
   matrix: JSON.parse(JSON.stringify(SANDWICH_PRICING_MATRIX)),
   extras: { ...EXTRAS_PRICING },
   bebidas: { ...BEBIDAS_PRICING },
+  outOfStock: [],
   updatedAt: new Date().toISOString(),
   updatedBy: 'sistema-inicial',
 };

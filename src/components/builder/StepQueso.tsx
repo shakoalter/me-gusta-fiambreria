@@ -38,7 +38,7 @@ export const StepQueso: React.FC<StepQuesoProps> = ({
   onGoToFiambreStep,
   onNextStep,
 }) => {
-  const { pricing } = usePricing();
+  const { pricing, isOutOfStock } = usePricing();
 
   return (
     <div className="space-y-6">
@@ -101,6 +101,7 @@ export const StepQueso: React.FC<StepQuesoProps> = ({
       {/* Grid de Quesos */}
       <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4 lg:gap-5">
         {QUESOS_DATA.map((queso) => {
+          const outOfStock = isOutOfStock(queso.id);
           const isSelected = selectedQueso?.id === queso.id;
 
           // Calculamos el precio combinado dinámico
@@ -111,13 +112,19 @@ export const StepQueso: React.FC<StepQuesoProps> = ({
           return (
             <motion.div
               key={queso.id}
-              whileHover={{ y: -3 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => onSelect(queso)}
-              className={`group relative flex flex-col justify-between p-2.5 sm:p-4 rounded-xl sm:rounded-2xl cursor-pointer transition-all border select-none overflow-hidden ${
-                isSelected
-                  ? 'bg-white border-2 border-[#781D22] shadow-md ring-2 sm:ring-4 ring-red-900/10'
-                  : 'bg-white border-stone-200/90 hover:border-amber-700/50 hover:shadow-md'
+              whileHover={!outOfStock ? { y: -3 } : undefined}
+              whileTap={!outOfStock ? { scale: 0.98 } : undefined}
+              onClick={() => {
+                if (!outOfStock) {
+                  onSelect(queso);
+                }
+              }}
+              className={`group relative flex flex-col justify-between p-2.5 sm:p-4 rounded-xl sm:rounded-2xl transition-all border select-none overflow-hidden ${
+                outOfStock
+                  ? 'bg-stone-100/80 border-stone-300/80 opacity-75 cursor-not-allowed'
+                  : isSelected
+                  ? 'bg-white border-2 border-[#781D22] shadow-md ring-2 sm:ring-4 ring-red-900/10 cursor-pointer'
+                  : 'bg-white border-stone-200/90 hover:border-amber-700/50 hover:shadow-md cursor-pointer'
               }`}
             >
               {/* Imagen y Badges */}
@@ -126,15 +133,30 @@ export const StepQueso: React.FC<StepQuesoProps> = ({
                   <img
                     src={queso.image}
                     alt={queso.name}
-                    className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-300"
+                    className={`w-full h-full object-cover transition-all duration-300 ${
+                      outOfStock
+                        ? 'filter grayscale contrast-75 opacity-60'
+                        : 'transform group-hover:scale-105'
+                    }`}
                     loading="lazy"
                   />
-                  {queso.badge && (
-                    <div className="absolute top-1.5 left-1.5 sm:top-2 sm:left-2 scale-[0.75] sm:scale-100 origin-top-left">
-                      {renderBadge(queso.badge)}
+
+                  {/* Badge de Sin Stock o Badge normal */}
+                  {outOfStock ? (
+                    <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px] flex items-center justify-center p-2">
+                      <span className="bg-red-700 text-white font-black text-[9px] sm:text-[11px] uppercase tracking-wider px-2.5 py-1 rounded-full shadow-lg border border-red-400/50">
+                        Sin Stock
+                      </span>
                     </div>
+                  ) : (
+                    queso.badge && (
+                      <div className="absolute top-1.5 left-1.5 sm:top-2 sm:left-2 scale-[0.75] sm:scale-100 origin-top-left">
+                        {renderBadge(queso.badge)}
+                      </div>
+                    )
                   )}
-                  {isSelected && (
+
+                  {isSelected && !outOfStock && (
                     <div className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 w-5 h-5 sm:w-7 sm:h-7 rounded-full bg-[#781D22] text-white flex items-center justify-center shadow-md animate-in fade-in zoom-in duration-200">
                       <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[3]" />
                     </div>
@@ -146,7 +168,9 @@ export const StepQueso: React.FC<StepQuesoProps> = ({
                   <span className="text-[8px] sm:text-[10px] font-bold text-stone-400 uppercase tracking-wider block mb-0.5 truncate">
                     {queso.flavorProfile}
                   </span>
-                  <h4 className="font-serif font-bold text-xs sm:text-base text-stone-900 leading-tight line-clamp-1 sm:line-clamp-none">
+                  <h4 className={`font-serif font-bold text-xs sm:text-base leading-tight line-clamp-1 sm:line-clamp-none ${
+                    outOfStock ? 'text-stone-500 line-through' : 'text-stone-900'
+                  }`}>
                     {queso.name}
                   </h4>
                   <p className="text-[10px] sm:text-xs text-stone-500 line-clamp-2 mt-0.5 sm:mt-1 leading-snug">
@@ -161,23 +185,29 @@ export const StepQueso: React.FC<StepQuesoProps> = ({
                   <span className="text-[9px] sm:text-[11px] font-semibold text-stone-400 block leading-tight">
                     {price !== null ? 'Precio total' : 'Base'}
                   </span>
-                  <span className="font-serif font-bold text-xs sm:text-base text-stone-900 leading-tight">
+                  <span className={`font-serif font-bold text-xs sm:text-base leading-tight ${
+                    outOfStock ? 'text-stone-400' : 'text-stone-900'
+                  }`}>
                     {price !== null ? formatCurrency(price) : '—'}
                   </span>
                 </div>
 
                 <div
                   className={`inline-flex items-center gap-0.5 sm:gap-1 px-2.5 py-1 sm:px-3.5 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-bold transition-all shadow-xs shrink-0 ${
-                    isSelected
+                    outOfStock
+                      ? 'bg-stone-300 text-stone-500 cursor-not-allowed'
+                      : isSelected
                       ? 'bg-emerald-700 text-white'
                       : 'bg-[#781D22] text-white group-hover:bg-[#60161a]'
                   }`}
                 >
-                  <span>{isSelected ? 'Elegido' : 'Elegir'}</span>
-                  {isSelected ? (
-                    <Check className="w-3 h-3 sm:w-3.5 sm:h-3.5 stroke-[3]" />
-                  ) : (
-                    <ArrowRight className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+                  <span>{outOfStock ? 'Sin Stock' : isSelected ? 'Elegido' : 'Elegir'}</span>
+                  {!outOfStock && (
+                    isSelected ? (
+                      <Check className="w-3 h-3 sm:w-3.5 sm:h-3.5 stroke-[3]" />
+                    ) : (
+                      <ArrowRight className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+                    )
                   )}
                 </div>
               </div>

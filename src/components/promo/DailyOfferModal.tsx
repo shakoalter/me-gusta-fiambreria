@@ -22,7 +22,7 @@ interface DailyOfferModalProps {
 
 export const DailyOfferModal: React.FC<DailyOfferModalProps> = ({ isOpen, onClose }) => {
   const { addItem, openCart, startNewSandwich } = useCart();
-  const { dailyOffer, pricing } = usePricing();
+  const { dailyOffer, pricing, isOutOfStock } = usePricing();
   const { showToast } = useToast();
 
   const fiambre = useMemo(() => {
@@ -33,13 +33,17 @@ export const DailyOfferModal: React.FC<DailyOfferModalProps> = ({ isOpen, onClos
     return QUESOS_DATA.find((q) => q.id === dailyOffer.quesoId) || QUESOS_DATA[0];
   }, [dailyOffer.quesoId]);
 
+  const isFiambreOutOfStock = isOutOfStock(dailyOffer.fiambreId);
+  const isQuesoOutOfStock = isOutOfStock(dailyOffer.quesoId);
+  const isOfferUnavailable = isFiambreOutOfStock || isQuesoOutOfStock;
+
   const availableBebidas = useMemo(() => getDailyOfferBebidas(), []);
   const availableExtras = useMemo(() => getDailyOfferExtras(), []);
   const availableAderezos = useMemo(() => getDailyOfferAderezos(), []);
 
   // Estados de selección dentro de la oferta
   const [selectedBebidaId, setSelectedBebidaId] = useState<string>(
-    dailyOffer.defaultBebidaId || (availableBebidas[0]?.id ?? '')
+    dailyOffer.defaultBebidaId || 'sin-bebida'
   );
   const [selectedExtraId, setSelectedExtraId] = useState<string>('sin-extra');
   const [selectedAderezoId, setSelectedAderezoId] = useState<string>('sin-aderezo');
@@ -67,7 +71,7 @@ export const DailyOfferModal: React.FC<DailyOfferModalProps> = ({ isOpen, onClos
   // Si se abre de nuevo, reseteamos a los valores por defecto de la oferta activa
   useEffect(() => {
     if (isOpen) {
-      setSelectedBebidaId(dailyOffer.defaultBebidaId || (availableBebidas[0]?.id ?? ''));
+      setSelectedBebidaId(dailyOffer.defaultBebidaId || 'sin-bebida');
       setSelectedExtraId('sin-extra');
       setSelectedAderezoId('sin-aderezo');
       setIsSubmitting(false);
@@ -79,11 +83,13 @@ export const DailyOfferModal: React.FC<DailyOfferModalProps> = ({ isOpen, onClos
   if (!isOpen) return null;
 
   // Objetos seleccionados
-  const chosenBebida: Bebida | undefined = availableBebidas.find((b) => b.id === selectedBebidaId);
+  const chosenBebida: Bebida | undefined = selectedBebidaId === 'sin-bebida'
+    ? undefined
+    : availableBebidas.find((b) => b.id === selectedBebidaId);
   const chosenExtra: Extra | undefined = availableExtras.find((e) => e.id === selectedExtraId);
   const chosenAderezo: Aderezo | undefined = availableAderezos.find((a) => a.id === selectedAderezoId);
 
-  // Cálculo de la oferta dinámica: (Sándwich + Bebida) con descuento + redondeo hacia arriba ceil($100) + Extras
+  // Cálculo de la oferta dinámica: Sándwich con descuento + redondeo hacia arriba ceil($100) (+ Bebida con descuento si se elige) + Extras
   const extrasList: Extra[] = chosenExtra ? [chosenExtra] : [];
   const offerCalculation = calculateDailyOfferPrice(
     dailyOffer.fiambreId,
@@ -98,7 +104,7 @@ export const DailyOfferModal: React.FC<DailyOfferModalProps> = ({ isOpen, onClos
   const originalTotalPrice = offerCalculation.originalBasePrice + offerCalculation.extrasTotal;
 
   const handleAddToCart = () => {
-    if (isSubmitting) return;
+    if (isSubmitting || isOfferUnavailable) return;
     setIsSubmitting(true);
 
     const bebidasList: Bebida[] = chosenBebida ? [chosenBebida] : [];
@@ -235,16 +241,21 @@ export const DailyOfferModal: React.FC<DailyOfferModalProps> = ({ isOpen, onClos
               </div>
 
               <div className="text-xs text-stone-600 space-y-1">
-                {chosenBebida && (
+                {chosenBebida ? (
                   <p className="flex items-center gap-1.5 text-blue-800 font-medium">
                     <span>🥤</span>
                     <span>Bebida: {chosenBebida.name} ({chosenBebida.volume})</span>
+                  </p>
+                ) : (
+                  <p className="flex items-center gap-1.5 text-stone-500 font-medium">
+                    <span>🥤</span>
+                    <span>Sin bebida</span>
                   </p>
                 )}
                 {chosenExtra && (
                   <p className="flex items-center gap-1.5 text-emerald-800 font-medium">
                     <span>🥗</span>
-                    <span>Extra: {chosenExtra.name} (+{formatCurrency(pricing.extras[chosenExtra.id] ?? chosenExtra.price)})</span>
+                    <span>Extra: {chosenExtra.name}</span>
                   </p>
                 )}
                 {chosenAderezo && (
@@ -326,22 +337,30 @@ export const DailyOfferModal: React.FC<DailyOfferModalProps> = ({ isOpen, onClos
               {/* 1. BEBIDA */}
               <div className="bg-gradient-to-b from-[#4A1519] via-[#2A100B] to-[#1C0B08] rounded-2xl p-3 sm:p-3.5 border-[1.5px] border-amber-500/70 shadow-lg flex flex-col justify-between space-y-3">
                 <div className="flex items-center gap-2.5">
-                  <img
-                    src={chosenBebida?.image || '/images/bebidas/coca-cola-600.jpg'}
-                    alt={chosenBebida?.name || 'Bebida'}
-                    className="w-12 h-12 object-contain rounded-lg shrink-0 bg-black/30 p-0.5 border border-amber-500/20"
-                  />
+                  {chosenBebida?.image ? (
+                    <img
+                      src={chosenBebida.image}
+                      alt={chosenBebida.name}
+                      className={`w-12 h-12 object-contain rounded-lg shrink-0 bg-black/30 p-0.5 border border-amber-500/20 ${
+                        isOutOfStock(chosenBebida.id) ? 'grayscale opacity-60' : ''
+                      }`}
+                    />
+                  ) : (
+                    <div className="w-12 h-12 rounded-lg bg-black/30 p-0.5 border border-amber-500/20 flex items-center justify-center text-amber-400/80">
+                      <GlassWater className="w-6 h-6 stroke-[1.5]" />
+                    </div>
+                  )}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1.5">
                       <div className="w-5 h-5 rounded-full bg-[#52191D] border border-amber-400/60 text-amber-300 flex items-center justify-center shrink-0">
                         <GlassWater className="w-3 h-3" />
                       </div>
                       <h4 className="font-serif font-bold text-xs sm:text-sm text-white leading-tight truncate">
-                        Agregar bebida
+                        {chosenBebida ? 'Bebida elegida' : 'Agregar bebida'}
                       </h4>
                     </div>
                     <p className="text-[10px] sm:text-[11px] text-amber-200/80 font-medium mt-0.5">
-                      Incluida en la promo
+                      {chosenBebida ? `${chosenBebida.name} (${chosenBebida.volume})` : 'Opcional con descuento'}
                     </p>
                   </div>
                 </div>
@@ -353,11 +372,20 @@ export const DailyOfferModal: React.FC<DailyOfferModalProps> = ({ isOpen, onClos
                     aria-label="Seleccionar bebida incluida en la oferta"
                     className="w-full appearance-none bg-[#140607] hover:bg-[#1f090b] border border-amber-500/60 rounded-xl px-3 py-2 text-xs font-semibold text-amber-100 pr-8 focus:outline-hidden focus:ring-1 focus:ring-amber-400 cursor-pointer transition-colors"
                   >
-                    {availableBebidas.map((bebida) => (
-                      <option key={bebida.id} value={bebida.id} className="bg-stone-900 text-white">
-                        {bebida.name} ({bebida.volume})
-                      </option>
-                    ))}
+                    <option value="sin-bebida" className="bg-stone-900 text-white">Sin bebida</option>
+                    {availableBebidas.map((bebida) => {
+                      const outOfStock = isOutOfStock(bebida.id);
+                      return (
+                        <option
+                          key={bebida.id}
+                          value={bebida.id}
+                          disabled={outOfStock}
+                          className={outOfStock ? 'bg-stone-800 text-stone-500' : 'bg-stone-900 text-white'}
+                        >
+                          {bebida.name} ({bebida.volume}) {outOfStock ? '— (Sin stock)' : ''}
+                        </option>
+                      );
+                    })}
                   </select>
                   <ChevronDown className="w-4 h-4 text-amber-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                 </div>
@@ -369,7 +397,9 @@ export const DailyOfferModal: React.FC<DailyOfferModalProps> = ({ isOpen, onClos
                   <img
                     src={chosenExtra?.image || '/images/bodegon-charcuterie.jpg'}
                     alt={chosenExtra?.name || 'Extra'}
-                    className="w-12 h-12 object-cover rounded-lg shrink-0 bg-black/30 p-0.5 border border-amber-500/20"
+                    className={`w-12 h-12 object-cover rounded-lg shrink-0 bg-black/30 p-0.5 border border-amber-500/20 ${
+                      chosenExtra && isOutOfStock(chosenExtra.id) ? 'grayscale opacity-60' : ''
+                    }`}
                   />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1.5">
@@ -395,10 +425,15 @@ export const DailyOfferModal: React.FC<DailyOfferModalProps> = ({ isOpen, onClos
                   >
                     <option value="sin-extra" className="bg-stone-900 text-white">Sin extra</option>
                     {availableExtras.map((extra) => {
-                      const extraPrice = pricing.extras[extra.id] ?? extra.price;
+                      const outOfStock = isOutOfStock(extra.id);
                       return (
-                        <option key={extra.id} value={extra.id} className="bg-stone-900 text-white">
-                          {extra.name} (+{formatCurrency(extraPrice)})
+                        <option
+                          key={extra.id}
+                          value={extra.id}
+                          disabled={outOfStock}
+                          className={outOfStock ? 'bg-stone-800 text-stone-500' : 'bg-stone-900 text-white'}
+                        >
+                          {extra.name} {outOfStock ? '— (Sin stock)' : ''}
                         </option>
                       );
                     })}
@@ -413,7 +448,9 @@ export const DailyOfferModal: React.FC<DailyOfferModalProps> = ({ isOpen, onClos
                   <img
                     src={chosenAderezo?.image || '/images/aderezos/mayonesa.png'}
                     alt={chosenAderezo?.name || 'Aderezo'}
-                    className="w-12 h-12 object-contain rounded-lg shrink-0 bg-black/30 p-0.5 border border-amber-500/20"
+                    className={`w-12 h-12 object-contain rounded-lg shrink-0 bg-black/30 p-0.5 border border-amber-500/20 ${
+                      chosenAderezo && isOutOfStock(chosenAderezo.id) ? 'grayscale opacity-60' : ''
+                    }`}
                   />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1.5">
@@ -438,11 +475,19 @@ export const DailyOfferModal: React.FC<DailyOfferModalProps> = ({ isOpen, onClos
                     className="w-full appearance-none bg-[#140607] hover:bg-[#1f090b] border border-amber-500/60 rounded-xl px-3 py-2 text-xs font-semibold text-amber-100 pr-8 focus:outline-hidden focus:ring-1 focus:ring-amber-400 cursor-pointer transition-colors"
                   >
                     <option value="sin-aderezo" className="bg-stone-900 text-white">Sin aderezo</option>
-                    {availableAderezos.map((aderezo) => (
-                      <option key={aderezo.id} value={aderezo.id} className="bg-stone-900 text-white">
-                        {aderezo.name}
-                      </option>
-                    ))}
+                    {availableAderezos.map((aderezo) => {
+                      const outOfStock = isOutOfStock(aderezo.id);
+                      return (
+                        <option
+                          key={aderezo.id}
+                          value={aderezo.id}
+                          disabled={outOfStock}
+                          className={outOfStock ? 'bg-stone-800 text-stone-500' : 'bg-stone-900 text-white'}
+                        >
+                          {aderezo.name} {outOfStock ? '— (Sin stock)' : ''}
+                        </option>
+                      );
+                    })}
                   </select>
                   <ChevronDown className="w-4 h-4 text-amber-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                 </div>
@@ -450,20 +495,43 @@ export const DailyOfferModal: React.FC<DailyOfferModalProps> = ({ isOpen, onClos
 
             </div>
 
+            {/* AVISO SI LOS INGREDIENTES BASE ESTÁN AGOTADOS */}
+            {isOfferUnavailable && (
+              <div className="p-3 bg-red-950/80 border border-red-500/60 rounded-2xl text-center">
+                <p className="text-xs font-bold text-red-200">
+                  ⚠️ Esta oferta no está disponible actualmente por falta de stock en sus ingredientes principales ({isFiambreOutOfStock ? fiambre.name : ''}{isFiambreOutOfStock && isQuesoOutOfStock ? ' y ' : ''}{isQuesoOutOfStock ? queso.name : ''}).
+                </p>
+              </div>
+            )}
+
             {/* BOTÓN DE ACCIÓN */}
             <div className="pt-2">
               <motion.button
                 type="button"
-                whileHover={{ scale: 1.01 }}
-                whileTap={{ scale: 0.98 }}
-                disabled={isSubmitting}
+                whileHover={!isOfferUnavailable ? { scale: 1.01 } : undefined}
+                whileTap={!isOfferUnavailable ? { scale: 0.98 } : undefined}
+                disabled={isSubmitting || isOfferUnavailable}
                 onClick={handleAddToCart}
-                className="w-full flex items-center justify-center gap-3 sm:gap-4 px-6 py-4 rounded-full bg-gradient-to-r from-[#5B1317] via-[#781D22] to-[#5B1317] hover:via-[#8A2228] text-white font-serif font-bold text-sm sm:text-base md:text-lg shadow-[0_10px_25px_rgba(120,29,34,0.4)] border border-amber-500/60 transition-all cursor-pointer disabled:opacity-75 select-none"
+                className={`w-full flex items-center justify-center gap-3 sm:gap-4 px-6 py-4 rounded-full font-serif font-bold text-sm sm:text-base md:text-lg transition-all select-none ${
+                  isOfferUnavailable
+                    ? 'bg-stone-800 text-stone-500 border border-stone-700 cursor-not-allowed opacity-80'
+                    : 'bg-gradient-to-r from-[#5B1317] via-[#781D22] to-[#5B1317] hover:via-[#8A2228] text-white shadow-[0_10px_25px_rgba(120,29,34,0.4)] border border-amber-500/60 cursor-pointer'
+                }`}
               >
-                <span className="hidden sm:block w-12 sm:w-16 h-[1px] bg-gradient-to-r from-transparent via-amber-400/80 to-amber-300" />
-                <ShoppingBag className="w-5 h-5 text-white shrink-0" />
-                <span>{isSubmitting ? 'Agregando...' : 'Agregar al Pedido'}</span>
-                <span className="hidden sm:block w-12 sm:w-16 h-[1px] bg-gradient-to-l from-transparent via-amber-400/80 to-amber-300" />
+                {!isOfferUnavailable && (
+                  <span className="hidden sm:block w-12 sm:w-16 h-[1px] bg-gradient-to-r from-transparent via-amber-400/80 to-amber-300" />
+                )}
+                <ShoppingBag className="w-5 h-5 shrink-0" />
+                <span>
+                  {isOfferUnavailable
+                    ? 'No disponible por falta de stock'
+                    : isSubmitting
+                    ? 'Agregando...'
+                    : 'Agregar al Pedido'}
+                </span>
+                {!isOfferUnavailable && (
+                  <span className="hidden sm:block w-12 sm:w-16 h-[1px] bg-gradient-to-l from-transparent via-amber-400/80 to-amber-300" />
+                )}
               </motion.button>
             </div>
 

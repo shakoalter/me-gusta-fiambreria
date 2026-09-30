@@ -28,7 +28,7 @@ export const DAILY_OFFER_CONFIG: DailyOfferConfig = {
   image: '/images/hero-sandwich.jpg',
   fiambreId: 'salame',
   quesoId: 'queso-clasico',
-  defaultBebidaId: 'coca-cola-600',
+  defaultBebidaId: 'sin-bebida',
   discountPercentage: 0.10,
 };
 

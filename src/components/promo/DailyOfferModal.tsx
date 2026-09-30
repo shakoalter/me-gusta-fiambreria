@@ -41,10 +41,8 @@ export const DailyOfferModal: React.FC<DailyOfferModalProps> = ({ isOpen, onClos
   const availableExtras = useMemo(() => getDailyOfferExtras(), []);
   const availableAderezos = useMemo(() => getDailyOfferAderezos(), []);
 
-  // Estados de selección dentro de la oferta
-  const [selectedBebidaId, setSelectedBebidaId] = useState<string>(
-    dailyOffer.defaultBebidaId || 'sin-bebida'
-  );
+  // Estados de selección dentro de la oferta (por defecto: sin bebida, sin extra, sin aderezo)
+  const [selectedBebidaId, setSelectedBebidaId] = useState<string>('sin-bebida');
   const [selectedExtraId, setSelectedExtraId] = useState<string>('sin-extra');
   const [selectedAderezoId, setSelectedAderezoId] = useState<string>('sin-aderezo');
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -68,17 +66,17 @@ export const DailyOfferModal: React.FC<DailyOfferModalProps> = ({ isOpen, onClos
     };
   }, [isOpen, onClose]);
 
-  // Si se abre de nuevo, reseteamos a los valores por defecto de la oferta activa
+  // Si se abre de nuevo, reseteamos a las opciones base por defecto (sin bebida, sin extra, sin aderezo)
   useEffect(() => {
     if (isOpen) {
-      setSelectedBebidaId(dailyOffer.defaultBebidaId || 'sin-bebida');
+      setSelectedBebidaId('sin-bebida');
       setSelectedExtraId('sin-extra');
       setSelectedAderezoId('sin-aderezo');
       setIsSubmitting(false);
       setIsSuccess(false);
       setAddedItem(null);
     }
-  }, [isOpen, availableBebidas, dailyOffer.defaultBebidaId]);
+  }, [isOpen]);
 
   if (!isOpen) return null;
 

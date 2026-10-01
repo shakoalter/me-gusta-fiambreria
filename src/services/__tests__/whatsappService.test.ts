@@ -30,19 +30,26 @@ describe('WhatsAppService', () => {
   });
 
   it('debe reclamar códigos secuenciales correctamente con el fallback / sin firebase', async () => {
-    const code1 = await claimNextGlobalOrderCode();
+    const testDate = `test-date-${Date.now()}`;
+    const code1 = await claimNextGlobalOrderCode(testDate);
     expect(code1).toBe('MG - 01');
 
-    const code2 = await claimNextGlobalOrderCode();
+    const code2 = await claimNextGlobalOrderCode(testDate);
     expect(code2).toBe('MG - 02');
   });
 
-  it('debe permitir suscribirse a la vista previa del contador diario', () => {
+  it('debe permitir suscribirse a la vista previa del contador diario', async () => {
+    const testDate = `test-date-${Date.now()}`;
     let preview = '';
     const unsubscribe = subscribeToDailyOrderCounter((code) => {
       preview = code;
-    });
+    }, testDate);
 
+    // Esperar actualización si es asíncrono
+    for (let i = 0; i < 20; i++) {
+      if (preview) break;
+      await new Promise((r) => setTimeout(r, 100));
+    }
     expect(preview).toMatch(/^MG - \d{2,}$/);
     unsubscribe();
   });
@@ -163,5 +170,32 @@ describe('WhatsAppService', () => {
     expect(url.startsWith('https://api.whatsapp.com/send?phone=5491199998888&text=')).toBe(true);
     expect(url).toContain(encodeURIComponent('Bondiola + Queso Ahumado'));
     expect(url).toContain(encodeURIComponent('Ana (MG - 05)'));
+  });
+
+  it('debe estructurar el mensaje correctamente cuando el nombre es omitido (opcional)', () => {
+    const bondiola = FIAMBRES_DATA.find((f) => f.id === 'bondiola')!;
+    const quesoAhumado = QUESOS_DATA.find((q) => q.id === 'queso-ahumado')!;
+
+    const item: CartItem = {
+      id: 'item-1',
+      fiambre: bondiola,
+      queso: quesoAhumado,
+      extras: [],
+      quantity: 1,
+      unitPrice: 6700,
+      subtotal: 6700,
+    };
+
+    // Caso 1: Sin nombre pero con código de pedido
+    const msgConCodigo = formatWhatsAppMessage([item], {
+      orderCode: 'MG - 12',
+    });
+    expect(msgConCodigo).toContain('🔖 *Pedido:* MG - 12');
+    expect(msgConCodigo).not.toContain('👤 *Cliente:*');
+
+    // Caso 2: Sin nombre y sin código
+    const msgSinNada = formatWhatsAppMessage([item]);
+    expect(msgSinNada).not.toContain('👤 *Cliente:*');
+    expect(msgSinNada).not.toContain('🔖 *Pedido:*');
   });
 });

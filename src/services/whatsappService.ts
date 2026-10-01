@@ -225,6 +225,8 @@ export function formatWhatsAppMessage(items: CartItem[], customerData?: Customer
   if (customerData?.customerName?.trim()) {
     const codeSuffix = customerData.orderCode ? ` (${customerData.orderCode})` : '';
     lines.push(`👤 *Cliente:* ${customerData.customerName.trim()}${codeSuffix}`);
+  } else if (customerData?.orderCode) {
+    lines.push(`🔖 *Pedido:* ${customerData.orderCode}`);
   }
 
   lines.push(`📦 *Pedido (${totalSandwiches} sándwich${totalSandwiches > 1 ? 'es' : ''}):*`);

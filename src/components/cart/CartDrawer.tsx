@@ -17,7 +17,6 @@ export const CartDrawer: React.FC = () => {
     notes: '',
     orderCode: getDailyOrderCode(false),
   }));
-  const [hasNameError, setHasNameError] = useState<boolean>(false);
 
   // Escuchar el contador global en tiempo real desde Firestore
   useEffect(() => {
@@ -50,9 +49,6 @@ export const CartDrawer: React.FC = () => {
 
   const handleCustomerDataChange = (data: CustomerOrderData) => {
     setCustomerData(data);
-    if (data.customerName?.trim()) {
-      setHasNameError(false);
-    }
   };
 
   const handleClearCart = () => {
@@ -62,7 +58,6 @@ export const CartDrawer: React.FC = () => {
       notes: '',
       orderCode: prev.orderCode || getDailyOrderCode(false),
     }));
-    setHasNameError(false);
     startNewSandwich();
   };
 
@@ -83,7 +78,6 @@ export const CartDrawer: React.FC = () => {
       notes: '',
       orderCode: prev.orderCode,
     }));
-    setHasNameError(false);
   };
 
   return (
@@ -193,12 +187,10 @@ export const CartDrawer: React.FC = () => {
             <CartSummary
               customerData={customerData}
               onCustomerDataChange={handleCustomerDataChange}
-              hasNameError={hasNameError}
             />
             <WhatsAppButton
               customerData={customerData}
               onOrderSent={handleOrderSent}
-              onValidationError={() => setHasNameError(true)}
             />
 
             {/* Enlace secundario para seguir eligiendo */}

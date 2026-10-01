@@ -13,38 +13,22 @@ import { formatCurrency } from '../../utils/formatters';
 interface WhatsAppButtonProps {
   customerData?: CustomerOrderData;
   onOrderSent?: () => void;
-  onValidationError?: () => void;
   className?: string;
 }
 
 export const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({
   customerData,
   onOrderSent,
-  onValidationError,
   className = '',
 }) => {
   const { items, totalPrice, clearCart, closeCart, startNewSandwich } = useCart();
   const { showToast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
-  const isNameMissing = !customerData?.customerName?.trim();
   const isDisabled = items.length === 0 || isSubmitting;
 
   const handleSendOrder = async () => {
     if (items.length === 0 || isSubmitting) return;
-
-    if (isNameMissing) {
-      if (onValidationError) {
-        onValidationError();
-      }
-      showToast('⚠️ Ingresá tu nombre para poder enviar el pedido.', 'error');
-      const inputEl = document.getElementById('customerName');
-      if (inputEl) {
-        inputEl.focus();
-        inputEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
-      return;
-    }
 
     setIsSubmitting(true);
 
@@ -101,8 +85,6 @@ export const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({
           <span className="block text-xs uppercase tracking-wider text-green-100 font-bold">
             {isSubmitting
               ? 'Conectando con el local...'
-              : isNameMissing
-              ? 'Paso final: Ingresá tu nombre'
               : `Listo para enviar (${customerData?.orderCode || 'MG'})`}
           </span>
           <span className="text-sm sm:text-base font-bold">

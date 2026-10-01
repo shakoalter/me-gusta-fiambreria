@@ -1,3 +1,5 @@
+import { doc, runTransaction, onSnapshot } from 'firebase/firestore';
+import { db, isFirebaseConfigured } from './firebase';
 import { CartItem } from '../types/product';
 import { STORE_CONFIG } from '../config/storeConfig';
 import { formatCurrency } from '../utils/formatters';
@@ -23,6 +25,101 @@ export function getLocalDateString(date: Date = new Date()): string {
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
+}
+
+export function formatOrderNumber(num: number): string {
+  const formattedNum = num < 100 ? String(num).padStart(2, '0') : String(num);
+  return `MG - ${formattedNum}`;
+}
+
+/**
+ * Reserva y obtiene de forma ATÓMICA en Firestore el siguiente número de pedido global del día.
+ * Si dos personas envían al mismo tiempo, garantiza números consecutivos sin duplicados.
+ * En caso de falla de red o Firebase no disponible, recurre a un fallback seguro.
+ */
+export async function claimNextGlobalOrderCode(customDate?: string): Promise<string> {
+  const today = customDate || getLocalDateString();
+
+  if (isFirebaseConfigured && db) {
+    try {
+      const firestoreDb = db;
+      const counterRef = doc(firestoreDb, 'orderCounters', today);
+
+      const nextNumber = await runTransaction(firestoreDb, async (transaction) => {
+        const docSnap = await transaction.get(counterRef);
+
+        if (!docSnap.exists()) {
+          transaction.set(counterRef, {
+            date: today,
+            count: 1,
+            lastOrderAt: new Date().toISOString(),
+          });
+          return 1;
+        }
+
+        const currentData = docSnap.data();
+        const currentCount = typeof currentData?.count === 'number' ? currentData.count : 0;
+        const newCount = currentCount + 1;
+
+        transaction.update(counterRef, {
+          count: newCount,
+          lastOrderAt: new Date().toISOString(),
+        });
+
+        return newCount;
+      });
+
+      return formatOrderNumber(nextNumber);
+    } catch (error) {
+      console.warn('[Firestore] Error en transacción de contador diario, usando fallback:', error);
+    }
+  }
+
+  // Fallback si no hay conexión o no está configurado Firebase
+  return advanceToNextDailyOrderCode();
+}
+
+/**
+ * Se suscribe en TIEMPO REAL al contador del día para mostrar el próximo número esperado.
+ */
+export function subscribeToDailyOrderCounter(
+  onUpdate: (previewCode: string) => void,
+  customDate?: string
+): () => void {
+  const today = customDate || getLocalDateString();
+
+  if (!isFirebaseConfigured || !db) {
+    onUpdate(getDailyOrderCode(false, today));
+    return () => {};
+  }
+
+  try {
+    const firestoreDb = db;
+    const counterRef = doc(firestoreDb, 'orderCounters', today);
+
+    return onSnapshot(
+      counterRef,
+      (docSnap) => {
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          const currentCount = typeof data?.count === 'number' ? data.count : 0;
+          const nextExpected = currentCount + 1;
+          onUpdate(formatOrderNumber(nextExpected));
+        } else {
+          // El día recién comienza
+          onUpdate('MG - 01');
+        }
+      },
+      (error) => {
+        console.warn('[Firestore] Error escuchando contador diario:', error);
+        onUpdate(getDailyOrderCode(false, today));
+      }
+    );
+  } catch (error) {
+    console.warn('[Firestore] Fallo al iniciar suscripción de contador:', error);
+    onUpdate(getDailyOrderCode(false, today));
+    return () => {};
+  }
 }
 
 let memoryTracker: DailyOrderTracker | null = null;

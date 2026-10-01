@@ -1,9 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { MessageCircle } from 'lucide-react';
+import { MessageCircle, Loader2 } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useToast } from '../../context/ToastContext';
-import { generateWhatsAppUrl, CustomerOrderData } from '../../services/whatsappService';
+import {
+  generateWhatsAppUrl,
+  claimNextGlobalOrderCode,
+  CustomerOrderData,
+} from '../../services/whatsappService';
 import { formatCurrency } from '../../utils/formatters';
 
 interface WhatsAppButtonProps {
@@ -21,12 +25,13 @@ export const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({
 }) => {
   const { items, totalPrice, clearCart, closeCart, startNewSandwich } = useCart();
   const { showToast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const isNameMissing = !customerData?.customerName?.trim();
-  const isDisabled = items.length === 0;
+  const isDisabled = items.length === 0 || isSubmitting;
 
-  const handleSendOrder = () => {
-    if (items.length === 0) return;
+  const handleSendOrder = async () => {
+    if (items.length === 0 || isSubmitting) return;
 
     if (isNameMissing) {
       if (onValidationError) {
@@ -41,24 +46,38 @@ export const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({
       return;
     }
 
-    const url = generateWhatsAppUrl(items, customerData);
-    // Abrir WhatsApp en nueva pestaña o aplicación nativa
-    window.open(url, '_blank', 'noopener,noreferrer');
+    setIsSubmitting(true);
 
-    // 1. Limpiar carrito
-    clearCart();
-    // 2. Cerrar panel lateral del carrito
-    closeCart();
-    // 3. Resetear el armador de sándwiches
-    startNewSandwich();
-    // 4. Notificar callback de reseteo de datos de cliente
-    if (onOrderSent) {
-      onOrderSent();
+    try {
+      // 1. Obtener y reservar de forma atómica en Firestore el número global oficial
+      const officialOrderCode = await claimNextGlobalOrderCode();
+
+      const finalCustomerData: CustomerOrderData = {
+        ...customerData,
+        orderCode: officialOrderCode,
+      };
+
+      // 2. Generar el mensaje y abrir WhatsApp
+      const url = generateWhatsAppUrl(items, finalCustomerData);
+      window.open(url, '_blank', 'noopener,noreferrer');
+
+      // 3. Limpiar carrito y resetear estado
+      clearCart();
+      closeCart();
+      startNewSandwich();
+
+      if (onOrderSent) {
+        onOrderSent();
+      }
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      showToast(`¡Pedido ${officialOrderCode} enviado con éxito! Te esperamos en el local.`, 'success');
+    } catch (error) {
+      console.error('Error al procesar el pedido:', error);
+      showToast('Hubo un inconveniente al generar el pedido. Intentá nuevamente.', 'error');
+    } finally {
+      setIsSubmitting(false);
     }
-    // 5. Volver suavemente al principio de la página
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    // 6. Notificación de éxito
-    showToast('¡Pedido enviado! Te esperamos en el local.', 'success');
   };
 
   return (
@@ -72,14 +91,22 @@ export const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({
     >
       <div className="flex items-center gap-3">
         <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center shrink-0">
-          <MessageCircle className="w-5 h-5 fill-white text-gourmet-whatsapp" />
+          {isSubmitting ? (
+            <Loader2 className="w-5 h-5 text-white animate-spin" />
+          ) : (
+            <MessageCircle className="w-5 h-5 fill-white text-gourmet-whatsapp" />
+          )}
         </div>
         <div className="text-left">
           <span className="block text-xs uppercase tracking-wider text-green-100 font-bold">
-            {isNameMissing ? 'Paso final: Ingresá tu nombre' : `Listo para enviar (${customerData?.orderCode || 'MG'})`}
+            {isSubmitting
+              ? 'Conectando con el local...'
+              : isNameMissing
+              ? 'Paso final: Ingresá tu nombre'
+              : `Listo para enviar (${customerData?.orderCode || 'MG'})`}
           </span>
           <span className="text-sm sm:text-base font-bold">
-            Enviar Pedido por WhatsApp
+            {isSubmitting ? 'Asignando número de pedido...' : 'Enviar Pedido por WhatsApp'}
           </span>
         </div>
       </div>

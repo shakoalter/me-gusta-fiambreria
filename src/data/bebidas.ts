@@ -4,6 +4,15 @@ import { BEBIDAS_PRICING } from './pricingMatrix';
 export const BEBIDAS_DATA: Bebida[] = [
   // Individuales - 600cc / Lata
   {
+    id: 'coca-cola-220',
+    name: 'Coca-Cola Original',
+    volume: '220 cc',
+    category: 'Individuales',
+    badge: 'Lata',
+    image: '/images/bebidas/coca-cola-220.jpg',
+    price: BEBIDAS_PRICING['coca-cola-220'],
+  },
+  {
     id: 'coca-cola-600',
     name: 'Coca-Cola Original',
     volume: '600 cc',
@@ -80,6 +89,15 @@ export const BEBIDAS_DATA: Bebida[] = [
     badge: 'Isotónica',
     image: '/images/bebidas/powerade-uva-500.jpg',
     price: BEBIDAS_PRICING['powerade-uva-500'],
+  },
+  {
+    id: 'powerade-tropical-995',
+    name: 'Powerade Frutas Tropicales',
+    volume: '995 cc',
+    category: 'Aguas & Isotónicas',
+    badge: 'Isotónica',
+    image: '/images/bebidas/powerade-tropical-995.jpg',
+    price: BEBIDAS_PRICING['powerade-tropical-995'],
   },
 
   // Grandes / Familiares

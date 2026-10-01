@@ -176,6 +176,7 @@ export const EXTRAS_PRICING: Record<ExtraId, number> = {
 };
 
 export const BEBIDAS_PRICING: Record<BebidaId, number> = {
+  'coca-cola-220': 1000,
   'agua-benedictino-500': 1900,
   'coca-cola-600': 2600,
   'coca-cola-zero-600': 2600,
@@ -183,6 +184,7 @@ export const BEBIDAS_PRICING: Record<BebidaId, number> = {
   'fanta-carmesi-354': 2100,
   'sprite-600': 2600,
   'powerade-uva-500': 2100,
+  'powerade-tropical-995': 2600,
   'aquarius-pera-600': 2100,
   'aquarius-pomelo-600': 2100,
   'coca-cola-175': 5100,

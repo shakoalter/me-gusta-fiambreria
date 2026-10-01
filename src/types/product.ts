@@ -36,6 +36,7 @@ export type ExtraId =
 export type AderezoId = 'mayonesa' | 'ketchup' | 'mostaza';
 
 export type BebidaId =
+  | 'coca-cola-220'
   | 'agua-benedictino-500'
   | 'coca-cola-600'
   | 'coca-cola-zero-600'
@@ -43,6 +44,7 @@ export type BebidaId =
   | 'fanta-carmesi-354'
   | 'sprite-600'
   | 'powerade-uva-500'
+  | 'powerade-tropical-995'
   | 'aquarius-pera-600'
   | 'aquarius-pomelo-600'
   | 'coca-cola-175'

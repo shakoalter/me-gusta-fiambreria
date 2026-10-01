@@ -6,6 +6,9 @@ import {
   getDailyOrderCode,
   advanceToNextDailyOrderCode,
   resetDailyOrderTracker,
+  claimNextGlobalOrderCode,
+  formatOrderNumber,
+  subscribeToDailyOrderCounter,
 } from '../whatsappService';
 import { FIAMBRES_DATA } from '../../data/fiambres';
 import { QUESOS_DATA } from '../../data/quesos';
@@ -15,6 +18,33 @@ import { CartItem } from '../../types/product';
 describe('WhatsAppService', () => {
   beforeEach(() => {
     resetDailyOrderTracker();
+  });
+
+  it('debe formatear números menores a 100 con ceros a la izquierda y mayores sin truncar', () => {
+    expect(formatOrderNumber(1)).toBe('MG - 01');
+    expect(formatOrderNumber(9)).toBe('MG - 09');
+    expect(formatOrderNumber(10)).toBe('MG - 10');
+    expect(formatOrderNumber(99)).toBe('MG - 99');
+    expect(formatOrderNumber(100)).toBe('MG - 100');
+    expect(formatOrderNumber(250)).toBe('MG - 250');
+  });
+
+  it('debe reclamar códigos secuenciales correctamente con el fallback / sin firebase', async () => {
+    const code1 = await claimNextGlobalOrderCode();
+    expect(code1).toBe('MG - 01');
+
+    const code2 = await claimNextGlobalOrderCode();
+    expect(code2).toBe('MG - 02');
+  });
+
+  it('debe permitir suscribirse a la vista previa del contador diario', () => {
+    let preview = '';
+    const unsubscribe = subscribeToDailyOrderCounter((code) => {
+      preview = code;
+    });
+
+    expect(preview).toMatch(/^MG - \d{2,}$/);
+    unsubscribe();
   });
 
   it('debe retornar string vacío si el carrito está vacío', () => {

@@ -7,7 +7,7 @@ import { WhatsAppButton } from './WhatsAppButton';
 import {
   CustomerOrderData,
   getDailyOrderCode,
-  advanceToNextDailyOrderCode,
+  subscribeToDailyOrderCounter,
 } from '../../services/whatsappService';
 
 export const CartDrawer: React.FC = () => {
@@ -18,6 +18,17 @@ export const CartDrawer: React.FC = () => {
     orderCode: getDailyOrderCode(false),
   }));
   const [hasNameError, setHasNameError] = useState<boolean>(false);
+
+  // Escuchar el contador global en tiempo real desde Firestore
+  useEffect(() => {
+    const unsubscribe = subscribeToDailyOrderCounter((previewCode) => {
+      setCustomerData((prev) => ({
+        ...prev,
+        orderCode: previewCode,
+      }));
+    });
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -46,11 +57,11 @@ export const CartDrawer: React.FC = () => {
 
   const handleClearCart = () => {
     clearCart();
-    setCustomerData({
+    setCustomerData((prev) => ({
       customerName: '',
       notes: '',
-      orderCode: getDailyOrderCode(false),
-    });
+      orderCode: prev.orderCode || getDailyOrderCode(false),
+    }));
     setHasNameError(false);
     startNewSandwich();
   };
@@ -67,12 +78,11 @@ export const CartDrawer: React.FC = () => {
   };
 
   const handleOrderSent = () => {
-    const nextCode = advanceToNextDailyOrderCode();
-    setCustomerData({
+    setCustomerData((prev) => ({
       customerName: '',
       notes: '',
-      orderCode: nextCode,
-    });
+      orderCode: prev.orderCode,
+    }));
     setHasNameError(false);
   };
 

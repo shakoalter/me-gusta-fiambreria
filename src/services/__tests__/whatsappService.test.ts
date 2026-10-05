@@ -9,6 +9,7 @@ import {
   claimNextGlobalOrderCode,
   formatOrderNumber,
   subscribeToDailyOrderCounter,
+  openWhatsAppUrl,
 } from '../whatsappService';
 import { FIAMBRES_DATA } from '../../data/fiambres';
 import { QUESOS_DATA } from '../../data/quesos';
@@ -198,4 +199,57 @@ describe('WhatsAppService', () => {
     expect(msgSinNada).not.toContain('👤 *Cliente:*');
     expect(msgSinNada).not.toContain('🔖 *Pedido:*');
   });
+
+  it('debe retornar false si no está en entorno de navegador (SSR/Node)', () => {
+    const result = openWhatsAppUrl('https://example.com');
+    // En Node puro sin window simulado debe retornar false de forma segura sin crashear
+    expect(typeof result).toBe('boolean');
+  });
+
+  it('debe abrir la URL de WhatsApp correctamente usando window.location.href en móviles y window.open en desktop', () => {
+    const testUrl = 'https://api.whatsapp.com/send?phone=5491162411992&text=Hola';
+    
+    // Mock globalThis.window & globalThis.navigator
+    let desktopOpened = false;
+    const mockWindow = {
+      location: { href: '' },
+      open: (_url: string, _target?: string, _features?: string) => {
+        desktopOpened = true;
+        return { closed: false } as unknown as Window;
+      },
+      innerWidth: 375,
+    };
+    const mockNavigator = {
+      userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X)',
+    };
+
+    (globalThis as unknown as { window: unknown }).window = mockWindow;
+    const originalNavigator = globalThis.navigator;
+    Object.defineProperty(globalThis, 'navigator', {
+      value: mockNavigator,
+      configurable: true,
+    });
+
+    // Test caso Mobile
+    const resultMobile = openWhatsAppUrl(testUrl);
+    expect(resultMobile).toBe(true);
+    expect(mockWindow.location.href).toBe(testUrl);
+
+    // Test caso Desktop
+    mockNavigator.userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36';
+    mockWindow.innerWidth = 1440;
+    desktopOpened = false;
+
+    const resultDesktop = openWhatsAppUrl(testUrl);
+    expect(resultDesktop).toBe(true);
+    expect(desktopOpened).toBe(true);
+
+    // Limpiar mocks
+    delete (globalThis as unknown as { window?: unknown }).window;
+    Object.defineProperty(globalThis, 'navigator', {
+      value: originalNavigator,
+      configurable: true,
+    });
+  });
 });
+

@@ -45,7 +45,11 @@ export async function claimNextGlobalOrderCode(customDate?: string): Promise<str
       const firestoreDb = db;
       const counterRef = doc(firestoreDb, 'orderCounters', today);
 
-      const nextNumber = await runTransaction(firestoreDb, async (transaction) => {
+      const timeoutPromise = new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('Firestore timeout')), 1500)
+      );
+
+      const transactionPromise = runTransaction(firestoreDb, async (transaction) => {
         const docSnap = await transaction.get(counterRef);
 
         if (!docSnap.exists()) {
@@ -69,13 +73,14 @@ export async function claimNextGlobalOrderCode(customDate?: string): Promise<str
         return newCount;
       });
 
+      const nextNumber = await Promise.race([transactionPromise, timeoutPromise]);
       return formatOrderNumber(nextNumber);
     } catch (error) {
-      console.warn('[Firestore] Error en transacción de contador diario, usando fallback:', error);
+      console.warn('[Firestore] Error o timeout en transacción de contador diario, usando fallback:', error);
     }
   }
 
-  // Fallback si no hay conexión o no está configurado Firebase
+  // Fallback si no hay conexión, timeout o no está configurado Firebase
   return advanceToNextDailyOrderCode();
 }
 
@@ -293,3 +298,44 @@ export function generateWhatsAppUrl(
   const encodedMessage = encodeURIComponent(message);
   return `https://api.whatsapp.com/send?phone=${sanitizedNumber}&text=${encodedMessage}`;
 }
+
+/**
+ * Abre la URL de WhatsApp de manera universal y segura en cualquier dispositivo
+ * (iOS Safari, Android Chrome, navegadores in-app como Instagram/Facebook/TikTok, y Desktop).
+ * 
+ * Evita el bloqueo silencioso de 'Popup Blockers' que ocurre con window.open()
+ * después de operaciones asíncronas (como la reserva del número en Firebase).
+ */
+export function openWhatsAppUrl(url: string): boolean {
+  if (typeof window === 'undefined') return false;
+
+  try {
+    const userAgent = navigator.userAgent || '';
+    const isMobile =
+      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent) ||
+      ('ontouchstart' in window && window.innerWidth <= 1024);
+
+    if (isMobile) {
+      // En dispositivos móviles y WebViews in-app, window.location.href dispara
+      // el enlace universal directo a la aplicación instalada de WhatsApp
+      // y nunca es interceptado por bloqueadores de ventanas emergentes.
+      window.location.href = url;
+      return true;
+    }
+
+    // En computadoras de escritorio intentamos abrir una nueva pestaña
+    const openedWindow = window.open(url, '_blank', 'noopener,noreferrer');
+
+    // Si el navegador bloqueó la ventana emergente (openedWindow es null o bloqueado),
+    // realizamos fallback a window.location.href para garantizar que el pedido salga.
+    if (!openedWindow || openedWindow.closed || typeof openedWindow.closed === 'undefined') {
+      window.location.href = url;
+    }
+    return true;
+  } catch (error) {
+    console.warn('[WhatsApp] Fallback a redirección directa tras error:', error);
+    window.location.href = url;
+    return true;
+  }
+}
+

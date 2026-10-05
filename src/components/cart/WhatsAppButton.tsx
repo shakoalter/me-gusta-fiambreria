@@ -6,6 +6,7 @@ import { useToast } from '../../context/ToastContext';
 import {
   generateWhatsAppUrl,
   claimNextGlobalOrderCode,
+  openWhatsAppUrl,
   CustomerOrderData,
 } from '../../services/whatsappService';
 import { formatCurrency } from '../../utils/formatters';
@@ -41,9 +42,9 @@ export const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({
         orderCode: officialOrderCode,
       };
 
-      // 2. Generar el mensaje y abrir WhatsApp
+      // 2. Generar el mensaje y abrir WhatsApp de forma universal (compatible móvil, in-app y desktop)
       const url = generateWhatsAppUrl(items, finalCustomerData);
-      window.open(url, '_blank', 'noopener,noreferrer');
+      openWhatsAppUrl(url);
 
       // 3. Limpiar carrito y resetear estado
       clearCart();

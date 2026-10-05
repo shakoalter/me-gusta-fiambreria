@@ -200,10 +200,10 @@ describe('WhatsAppService', () => {
     expect(msgSinNada).not.toContain('🔖 *Pedido:*');
   });
 
-  it('debe retornar false si no está en entorno de navegador (SSR/Node)', () => {
+  it('debe retornar failed si no está en entorno de navegador (SSR/Node)', () => {
     const result = openWhatsAppUrl('https://example.com');
-    // En Node puro sin window simulado debe retornar false de forma segura sin crashear
-    expect(typeof result).toBe('boolean');
+    expect(result.success).toBe(false);
+    expect(result.method).toBe('failed');
   });
 
   it('debe abrir la URL de WhatsApp correctamente usando window.location.href en móviles y window.open en desktop', () => {
@@ -232,7 +232,8 @@ describe('WhatsAppService', () => {
 
     // Test caso Mobile
     const resultMobile = openWhatsAppUrl(testUrl);
-    expect(resultMobile).toBe(true);
+    expect(resultMobile.success).toBe(true);
+    expect(resultMobile.method).toBe('location');
     expect(mockWindow.location.href).toBe(testUrl);
 
     // Test caso Desktop
@@ -241,7 +242,8 @@ describe('WhatsAppService', () => {
     desktopOpened = false;
 
     const resultDesktop = openWhatsAppUrl(testUrl);
-    expect(resultDesktop).toBe(true);
+    expect(resultDesktop.success).toBe(true);
+    expect(resultDesktop.method).toBe('window');
     expect(desktopOpened).toBe(true);
 
     // Limpiar mocks
@@ -252,4 +254,5 @@ describe('WhatsAppService', () => {
     });
   });
 });
+
 

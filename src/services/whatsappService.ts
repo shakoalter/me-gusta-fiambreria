@@ -299,6 +299,12 @@ export function generateWhatsAppUrl(
   return `https://api.whatsapp.com/send?phone=${sanitizedNumber}&text=${encodedMessage}`;
 }
 
+export interface OpenWhatsAppResult {
+  success: boolean;
+  method: 'location' | 'window' | 'failed';
+  error?: string;
+}
+
 /**
  * Abre la URL de WhatsApp de manera universal y segura en cualquier dispositivo
  * (iOS Safari, Android Chrome, navegadores in-app como Instagram/Facebook/TikTok, y Desktop).
@@ -306,8 +312,10 @@ export function generateWhatsAppUrl(
  * Evita el bloqueo silencioso de 'Popup Blockers' que ocurre con window.open()
  * después de operaciones asíncronas (como la reserva del número en Firebase).
  */
-export function openWhatsAppUrl(url: string): boolean {
-  if (typeof window === 'undefined') return false;
+export function openWhatsAppUrl(url: string): OpenWhatsAppResult {
+  if (typeof window === 'undefined') {
+    return { success: false, method: 'failed', error: 'No browser window environment' };
+  }
 
   try {
     const userAgent = navigator.userAgent || '';
@@ -320,7 +328,7 @@ export function openWhatsAppUrl(url: string): boolean {
       // el enlace universal directo a la aplicación instalada de WhatsApp
       // y nunca es interceptado por bloqueadores de ventanas emergentes.
       window.location.href = url;
-      return true;
+      return { success: true, method: 'location' };
     }
 
     // En computadoras de escritorio intentamos abrir una nueva pestaña
@@ -330,12 +338,19 @@ export function openWhatsAppUrl(url: string): boolean {
     // realizamos fallback a window.location.href para garantizar que el pedido salga.
     if (!openedWindow || openedWindow.closed || typeof openedWindow.closed === 'undefined') {
       window.location.href = url;
+      return { success: true, method: 'location' };
     }
-    return true;
+
+    return { success: true, method: 'window' };
   } catch (error) {
     console.warn('[WhatsApp] Fallback a redirección directa tras error:', error);
-    window.location.href = url;
-    return true;
+    try {
+      window.location.href = url;
+      return { success: true, method: 'location' };
+    } catch (fallbackError) {
+      return { success: false, method: 'failed', error: String(fallbackError) };
+    }
   }
 }
+
 

@@ -14,6 +14,7 @@ export const SANDWICH_PRICING_MATRIX: Record<FiambreId, Record<QuesoId, number>>
     'queso-zaatar': 5000,
     'queso-aji': 4700,
     'queso-albahaca': 4700,
+    'queso-merken': 5200,
   },
   'jamon-cocido-natural': {
     'queso-clasico': 4900,
@@ -24,6 +25,7 @@ export const SANDWICH_PRICING_MATRIX: Record<FiambreId, Record<QuesoId, number>>
     'queso-zaatar': 5700,
     'queso-aji': 5400,
     'queso-albahaca': 5400,
+    'queso-merken': 5900,
   },
   'paleta': {
     'queso-clasico': 3900,
@@ -34,6 +36,7 @@ export const SANDWICH_PRICING_MATRIX: Record<FiambreId, Record<QuesoId, number>>
     'queso-zaatar': 4700,
     'queso-aji': 4400,
     'queso-albahaca': 4400,
+    'queso-merken': 4900,
   },
   'mortadela': {
     'queso-clasico': 3900,
@@ -44,6 +47,7 @@ export const SANDWICH_PRICING_MATRIX: Record<FiambreId, Record<QuesoId, number>>
     'queso-zaatar': 4700,
     'queso-aji': 4400,
     'queso-albahaca': 4400,
+    'queso-merken': 4900,
   },
   'mortadela-pistacho': {
     'queso-clasico': 4800,
@@ -54,6 +58,7 @@ export const SANDWICH_PRICING_MATRIX: Record<FiambreId, Record<QuesoId, number>>
     'queso-zaatar': 5600,
     'queso-aji': 5300,
     'queso-albahaca': 5300,
+    'queso-merken': 5800,
   },
   'salame': {
     'queso-clasico': 4400,
@@ -64,6 +69,7 @@ export const SANDWICH_PRICING_MATRIX: Record<FiambreId, Record<QuesoId, number>>
     'queso-zaatar': 5200,
     'queso-aji': 4900,
     'queso-albahaca': 4900,
+    'queso-merken': 5400,
   },
   'bondiola': {
     'queso-clasico': 5700,
@@ -74,6 +80,7 @@ export const SANDWICH_PRICING_MATRIX: Record<FiambreId, Record<QuesoId, number>>
     'queso-zaatar': 6500,
     'queso-aji': 6200,
     'queso-albahaca': 6200,
+    'queso-merken': 6700,
   },
   'jamon-crudo': {
     'queso-clasico': 6700,
@@ -84,6 +91,7 @@ export const SANDWICH_PRICING_MATRIX: Record<FiambreId, Record<QuesoId, number>>
     'queso-zaatar': 7500,
     'queso-aji': 7200,
     'queso-albahaca': 7200,
+    'queso-merken': 7700,
   },
   'lomito': {
     'queso-clasico': 4600,
@@ -94,6 +102,7 @@ export const SANDWICH_PRICING_MATRIX: Record<FiambreId, Record<QuesoId, number>>
     'queso-zaatar': 5400,
     'queso-aji': 5100,
     'queso-albahaca': 5100,
+    'queso-merken': 5600,
   },
   'lomo-hierbas': {
     'queso-clasico': 5300,
@@ -104,6 +113,7 @@ export const SANDWICH_PRICING_MATRIX: Record<FiambreId, Record<QuesoId, number>>
     'queso-zaatar': 6100,
     'queso-aji': 5800,
     'queso-albahaca': 5800,
+    'queso-merken': 6300,
   },
   'cantimpalo': {
     'queso-clasico': 4600,
@@ -114,6 +124,7 @@ export const SANDWICH_PRICING_MATRIX: Record<FiambreId, Record<QuesoId, number>>
     'queso-zaatar': 5400,
     'queso-aji': 5100,
     'queso-albahaca': 5100,
+    'queso-merken': 5600,
   },
   'salchichon-primavera': {
     'queso-clasico': 3400,
@@ -124,6 +135,7 @@ export const SANDWICH_PRICING_MATRIX: Record<FiambreId, Record<QuesoId, number>>
     'queso-zaatar': 4200,
     'queso-aji': 3900,
     'queso-albahaca': 3900,
+    'queso-merken': 4400,
   },
   'pastron': {
     'queso-clasico': 5500,
@@ -134,6 +146,7 @@ export const SANDWICH_PRICING_MATRIX: Record<FiambreId, Record<QuesoId, number>>
     'queso-zaatar': 6300,
     'queso-aji': 6000,
     'queso-albahaca': 6000,
+    'queso-merken': 6500,
   },
   'matambre-carne': {
     'queso-clasico': 5600,
@@ -144,6 +157,7 @@ export const SANDWICH_PRICING_MATRIX: Record<FiambreId, Record<QuesoId, number>>
     'queso-zaatar': 6400,
     'queso-aji': 6100,
     'queso-albahaca': 6100,
+    'queso-merken': 6600,
   },
   'panceta-ahumada': {
     'queso-clasico': 5100,
@@ -154,6 +168,7 @@ export const SANDWICH_PRICING_MATRIX: Record<FiambreId, Record<QuesoId, number>>
     'queso-zaatar': 5900,
     'queso-aji': 5600,
     'queso-albahaca': 5600,
+    'queso-merken': 6100,
   },
   'longaniza': {
     'queso-clasico': 5000,
@@ -164,6 +179,7 @@ export const SANDWICH_PRICING_MATRIX: Record<FiambreId, Record<QuesoId, number>>
     'queso-zaatar': 5800,
     'queso-aji': 5500,
     'queso-albahaca': 5500,
+    'queso-merken': 6000,
   },
 };
 

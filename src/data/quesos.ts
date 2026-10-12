@@ -61,4 +61,12 @@ export const QUESOS_DATA: Queso[] = [
     description: 'Fresco y herbal con hebras de albahaca fresca en masa.',
     image: '/images/quesos/queso-con-albahaca.jpg',
   },
+  {
+    id: 'queso-merken',
+    name: 'Queso de Merkén',
+    flavorProfile: 'Especiado',
+    description: 'Sabor ahumado y picante suave con auténtico ají merkén seleccionado.',
+    image: '/images/quesos/queso-merken.png',
+    badge: 'Sabor Único',
+  },
 ];

@@ -24,7 +24,8 @@ export type QuesoId =
   | 'fiambrin'
   | 'queso-zaatar'
   | 'queso-aji'
-  | 'queso-albahaca';
+  | 'queso-albahaca'
+  | 'queso-merken';
 
 export type ExtraId =
   | 'aceitunas'

@@ -27,9 +27,9 @@ describe('PriceCalculator Service', () => {
     expect(subtotal).toBe(13600);
   });
 
-  it('debe tener precios válidos para las 128 combinaciones posibles (16 fiambres x 8 quesos)', () => {
+  it('debe tener precios válidos para las 144 combinaciones posibles (16 fiambres x 9 quesos)', () => {
     expect(FIAMBRES_DATA).toHaveLength(16);
-    expect(QUESOS_DATA).toHaveLength(8);
+    expect(QUESOS_DATA).toHaveLength(9);
 
     FIAMBRES_DATA.forEach((fiambre) => {
       QUESOS_DATA.forEach((queso) => {
@@ -46,10 +46,12 @@ describe('PriceCalculator Service', () => {
     expect(getBaseSandwichPrice('jamon-cocido', 'queso-pesto')).toBe(5200);
     expect(getBaseSandwichPrice('jamon-cocido', 'cheddar')).toBe(5000);
     expect(getBaseSandwichPrice('jamon-cocido', 'queso-aji')).toBe(4700);
+    expect(getBaseSandwichPrice('jamon-cocido', 'queso-merken')).toBe(5200);
 
     // Jamón Crudo
     expect(getBaseSandwichPrice('jamon-crudo', 'queso-clasico')).toBe(6700);
     expect(getBaseSandwichPrice('jamon-crudo', 'queso-ahumado')).toBe(7700);
+    expect(getBaseSandwichPrice('jamon-crudo', 'queso-merken')).toBe(7700);
     expect(getBaseSandwichPrice('jamon-crudo', 'fiambrin')).toBe(7500);
     expect(getBaseSandwichPrice('jamon-crudo', 'queso-albahaca')).toBe(7200);
 

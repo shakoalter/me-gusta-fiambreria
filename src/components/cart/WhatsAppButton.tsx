@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { MessageCircle, Loader2, CheckCircle2, Sparkles } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
+import { useOptionalPricing } from '../../context/PricingContext';
 import { useToast } from '../../context/ToastContext';
 import {
   generateWhatsAppUrl,
@@ -9,6 +10,8 @@ import {
   openWhatsAppUrl,
   CustomerOrderData,
 } from '../../services/whatsappService';
+import { getCurrentPricing } from '../../services/adminService';
+import { recalculateCartItems } from '../../services/priceCalculator';
 import { formatCurrency } from '../../utils/formatters';
 
 interface WhatsAppButtonProps {
@@ -23,6 +26,7 @@ export const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({
   className = '',
 }) => {
   const { items, totalPrice, clearCart, closeCart, startNewSandwich } = useCart();
+  const pricingContext = useOptionalPricing();
   const { showToast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [assignedOrderCode, setAssignedOrderCode] = useState<string | null>(null);
@@ -43,9 +47,13 @@ export const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({
     setIsSubmitting(true);
 
     try {
-      // 1. Obtener y reservar de forma atómica en Firestore el número global oficial
-      // Si ya se asignó un código en este intento para este carrito, lo reutilizamos para no generar duplicados
-      const officialOrderCode = assignedOrderCode || (await claimNextGlobalOrderCode());
+      // 1. Obtener en paralelo el código oficial de pedido y el estado de precios más reciente
+      const pricingTimeout = new Promise<null>((resolve) => setTimeout(() => resolve(null), 1500));
+      const [officialOrderCode, latestRemotePricing] = await Promise.all([
+        assignedOrderCode ? Promise.resolve(assignedOrderCode) : claimNextGlobalOrderCode(),
+        Promise.race([getCurrentPricing(), pricingTimeout]).catch(() => null),
+      ]);
+
       setAssignedOrderCode(officialOrderCode);
 
       const finalCustomerData: CustomerOrderData = {
@@ -53,8 +61,13 @@ export const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({
         orderCode: officialOrderCode,
       };
 
-      // 2. Generar el mensaje y URL
-      const url = generateWhatsAppUrl(items, finalCustomerData);
+      // 2. Recalcular ítems con los precios más recientes antes de generar el mensaje de WhatsApp
+      const activePricing = latestRemotePricing || pricingContext?.pricing;
+      const verifiedItems = activePricing
+        ? recalculateCartItems(items, activePricing, pricingContext?.dailyOffer)
+        : items;
+
+      const url = generateWhatsAppUrl(verifiedItems, finalCustomerData);
       setPreparedUrl(url);
 
       // 3. Intentar apertura inmediata

@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
 import { CartItem, CartState, SandwichCustomization } from '../types/product';
-import { calculateCartTotals } from '../services/priceCalculator';
+import { PricingState, DailyOfferState } from '../types/admin';
+import { calculateCartTotals, recalculateCartItems } from '../services/priceCalculator';
+import { useOptionalPricing } from './PricingContext';
 
 type CartAction =
   | { type: 'ADD_ITEM'; payload: SandwichCustomization }
@@ -12,7 +14,8 @@ type CartAction =
   | { type: 'SET_OPEN'; payload: boolean }
   | { type: 'SET_ITEM_TO_EDIT'; payload: CartItem | null }
   | { type: 'START_NEW_SANDWICH' }
-  | { type: 'LOAD_STORED_CART'; payload: CartItem[] };
+  | { type: 'LOAD_STORED_CART'; payload: CartItem[] }
+  | { type: 'SYNC_PRICES'; payload: { pricing: PricingState; dailyOffer?: DailyOfferState } };
 
 interface CartContextType extends CartState {
   itemToEdit: CartItem | null;
@@ -110,6 +113,14 @@ export function cartReducer(
       return { ...state, items, totalPrice, totalQuantity };
     }
 
+    case 'SYNC_PRICES': {
+      if (state.items.length === 0) return state;
+      const { pricing, dailyOffer } = action.payload;
+      const updatedItems = recalculateCartItems(state.items, pricing, dailyOffer);
+      const { totalPrice, totalQuantity } = calculateCartTotals(updatedItems);
+      return { ...state, items: updatedItems, totalPrice, totalQuantity };
+    }
+
     case 'ADD_ITEM': {
       // Verificamos si existe un sándwich idéntico (mismo fiambre, queso, extras y aderezos)
       const newItem = action.payload;
@@ -119,14 +130,16 @@ export function cartReducer(
 
       let updatedItems: CartItem[];
       if (existingIndex > -1) {
-        // Incrementamos la cantidad del ítem existente
+        // Incrementamos la cantidad del ítem existente y actualizamos al precio unitario vigente
         updatedItems = state.items.map((item, idx) => {
           if (idx === existingIndex) {
             const newQty = item.quantity + newItem.quantity;
+            const latestUnitPrice = newItem.unitPrice;
             return {
               ...item,
+              unitPrice: latestUnitPrice,
               quantity: newQty,
-              subtotal: item.unitPrice * newQty,
+              subtotal: latestUnitPrice * newQty,
             };
           }
           return item;
@@ -198,21 +211,38 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(cartReducer, initialCartState);
+  const pricingContext = useOptionalPricing();
 
-  // Cargar estado inicial de localStorage
+  // Cargar estado inicial de localStorage y recalcular con precios vigentes
   useEffect(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
         const parsed = JSON.parse(stored) as CartItem[];
         if (Array.isArray(parsed) && parsed.length > 0) {
-          dispatch({ type: 'LOAD_STORED_CART', payload: parsed });
+          const syncedItems = pricingContext
+            ? recalculateCartItems(parsed, pricingContext.pricing, pricingContext.dailyOffer)
+            : parsed;
+          dispatch({ type: 'LOAD_STORED_CART', payload: syncedItems });
         }
       }
     } catch {
       // Ignorar errores de parseo
     }
   }, []);
+
+  // Re-sincronizar precios de los ítems del carrito cada vez que cambie la matriz en PricingContext
+  useEffect(() => {
+    if (pricingContext) {
+      dispatch({
+        type: 'SYNC_PRICES',
+        payload: {
+          pricing: pricingContext.pricing,
+          dailyOffer: pricingContext.dailyOffer,
+        },
+      });
+    }
+  }, [pricingContext?.pricing, pricingContext?.dailyOffer]);
 
   // Guardar en localStorage ante cambios
   useEffect(() => {
@@ -264,3 +294,4 @@ export function useCart(): CartContextType {
   }
   return context;
 }
+

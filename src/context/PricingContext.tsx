@@ -7,8 +7,8 @@ import { FiambreId, QuesoId, ExtraId, BebidaId, Extra, Bebida } from '../types/p
 import { 
   subscribeToPricingState, 
   subscribeToDailyOfferState, 
-  DEFAULT_PRICING_STATE, 
-  DEFAULT_DAILY_OFFER_STATE,
+  getInitialPricingState,
+  getInitialDailyOfferState,
   savePricingState,
   applyGlobalPriceIncrease as applyGlobalPriceIncreaseService,
   updateDailyOffer as updateDailyOfferService
@@ -44,8 +44,8 @@ interface PricingContextType {
 const PricingContext = createContext<PricingContextType | undefined>(undefined);
 
 export const PricingProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [pricing, setPricing] = useState<PricingState>(DEFAULT_PRICING_STATE);
-  const [dailyOffer, setDailyOffer] = useState<DailyOfferState>(DEFAULT_DAILY_OFFER_STATE);
+  const [pricing, setPricing] = useState<PricingState>(() => getInitialPricingState());
+  const [dailyOffer, setDailyOffer] = useState<DailyOfferState>(() => getInitialDailyOfferState());
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
@@ -173,3 +173,8 @@ export const usePricing = (): PricingContextType => {
   }
   return context;
 };
+
+export const useOptionalPricing = (): PricingContextType | undefined => {
+  return useContext(PricingContext);
+};
+

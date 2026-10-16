@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShoppingBag, Phone, MapPin, Home, Utensils } from 'lucide-react';
+import { ShoppingBag, Home, UtensilsCrossed, MapPin, Phone } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useCart } from '../../context/CartContext';
 import { STORE_CONFIG } from '../../config/storeConfig';
@@ -47,7 +47,7 @@ export const Header: React.FC = () => {
           <button
             type="button"
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            className="relative py-2 flex items-center gap-2 text-[#781D22] font-bold transition-colors cursor-pointer"
+            className="relative py-2 flex items-center gap-2 text-[#781D22] font-bold transition-colors cursor-pointer focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[#781D22]/40 rounded-md"
           >
             <Home className="w-4 h-4 text-[#781D22]" />
             <span>Inicio</span>
@@ -57,9 +57,9 @@ export const Header: React.FC = () => {
           <button
             type="button"
             onClick={() => scrollToSection('builder-section')}
-            className="py-2 flex items-center gap-2 text-stone-700 hover:text-[#781D22] font-semibold transition-colors cursor-pointer"
+            className="group py-2 flex items-center gap-2 text-stone-700 hover:text-[#781D22] font-semibold transition-colors cursor-pointer focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[#781D22]/40 rounded-md"
           >
-            <Utensils className="w-4 h-4 text-stone-500" />
+            <UtensilsCrossed className="w-4 h-4 text-stone-500 group-hover:text-[#781D22] transition-colors" />
             <span>Nuestros Sándwiches</span>
           </button>
         </nav>
@@ -67,10 +67,8 @@ export const Header: React.FC = () => {
         {/* Info adicional para desktop & Botón Carrito */}
         <div className="flex items-center gap-5 sm:gap-6">
           {/* Ubicación */}
-          <div className="hidden lg:flex items-center gap-2.5 text-xs text-left">
-            <div className="w-8 h-8 rounded-full bg-[#EADCCB] flex items-center justify-center text-stone-700 shrink-0 shadow-2xs">
-              <MapPin className="w-4 h-4" />
-            </div>
+          <div className="hidden lg:flex items-center gap-2 text-xs text-left">
+            <MapPin className="w-4 h-4 text-[#781D22] shrink-0" aria-hidden="true" />
             <div>
               <span className="block font-bold text-stone-900 text-[11px] leading-tight">
                 {STORE_CONFIG.address}
@@ -82,10 +80,8 @@ export const Header: React.FC = () => {
           </div>
 
           {/* Teléfono y Horario */}
-          <div className="hidden lg:flex items-center gap-2.5 text-xs text-left">
-            <div className="w-8 h-8 rounded-full bg-[#EADCCB] flex items-center justify-center text-stone-700 shrink-0 shadow-2xs">
-              <Phone className="w-4 h-4" />
-            </div>
+          <div className="hidden lg:flex items-center gap-2 text-xs text-left">
+            <Phone className="w-4 h-4 text-[#781D22] shrink-0" aria-hidden="true" />
             <div>
               <span className="block font-bold text-stone-900 text-[11px] leading-tight">
                 Pedidos: {STORE_CONFIG.displayPhone}

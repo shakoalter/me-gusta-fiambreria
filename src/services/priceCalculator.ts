@@ -1,6 +1,6 @@
 import { FiambreId, QuesoId, Extra, ExtraId, Bebida, BebidaId, CartItem } from '../types/product';
 import { SANDWICH_PRICING_MATRIX, EXTRAS_PRICING, BEBIDAS_PRICING } from '../data/pricingMatrix';
-import { PricingState } from '../types/admin';
+import { PricingState, DailyOfferState } from '../types/admin';
 
 /**
  * Redondea un importe hacia arriba al múltiplo de $100 más cercano (función techo / ceil).
@@ -139,6 +139,59 @@ export function calculateSandwichSubtotal(
 }
 
 /**
+ * Recalcula el precio unitario y subtotal de un CartItem según la matriz de precios actual.
+ * Evita que carritos guardados en localStorage mantengan precios viejos tras un aumento global.
+ */
+export function recalculateCartItemPrice(
+  item: CartItem,
+  customPricing?: PricingState,
+  dailyOffer?: DailyOfferState
+): CartItem {
+  const isDailyOfferItem =
+    item.id.startsWith('offer_') || item.notes === 'Promo del Día';
+
+  let latestUnitPrice: number;
+
+  if (isDailyOfferItem) {
+    const firstBebidaId = item.bebidas?.[0]?.id as BebidaId | undefined;
+    const discount = dailyOffer?.discountPercentage ?? 0.10;
+    const offerCalc = calculateDailyOfferPrice(
+      item.fiambre.id,
+      item.queso.id,
+      firstBebidaId,
+      item.extras ?? [],
+      discount,
+      customPricing
+    );
+    latestUnitPrice = offerCalc.unitPrice;
+  } else {
+    latestUnitPrice = calculateSandwichUnitPrice(
+      item.fiambre.id,
+      item.queso.id,
+      item.extras ?? [],
+      item.bebidas,
+      customPricing
+    );
+  }
+
+  const latestSubtotal = calculateSandwichSubtotal(latestUnitPrice, item.quantity);
+
+  return {
+    ...item,
+    unitPrice: latestUnitPrice,
+    subtotal: latestSubtotal,
+  };
+}
+
+export function recalculateCartItems(
+  items: CartItem[],
+  customPricing?: PricingState,
+  dailyOffer?: DailyOfferState
+): CartItem[] {
+  return items.map((item) => recalculateCartItemPrice(item, customPricing, dailyOffer));
+}
+
+/**
  * Calcula el total acumulado y la cantidad de sándwiches de un carrito
  */
 export function calculateCartTotals(items: CartItem[]): { totalPrice: number; totalQuantity: number } {
@@ -151,3 +204,4 @@ export function calculateCartTotals(items: CartItem[]): { totalPrice: number; to
     { totalPrice: 0, totalQuantity: 0 }
   );
 }
+

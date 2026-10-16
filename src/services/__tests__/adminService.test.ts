@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import {
   applyGlobalPriceIncrease,
   updateDailyOffer,
@@ -14,6 +14,13 @@ import {
   getBaseSandwichPrice,
 } from '../priceCalculator';
 import { PricingState } from '../../types/admin';
+
+vi.mock('../firebase', () => ({
+  isFirebaseConfigured: false,
+  db: null,
+  auth: null,
+  app: null,
+}));
 
 describe('Admin Service & Dynamic Pricing', () => {
   beforeEach(() => {

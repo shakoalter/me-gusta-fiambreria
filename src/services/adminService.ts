@@ -138,6 +138,36 @@ export async function fetchAuditLogs(limitCount: number = 30): Promise<AuditLogE
   }
 }
 
+export function getInitialPricingState(): PricingState {
+  try {
+    const local = safeStorage.getItem(LOCAL_STORAGE_PRICING_KEY);
+    if (local) {
+      const parsed = JSON.parse(local) as PricingState;
+      if (parsed && parsed.matrix && parsed.extras && parsed.bebidas) {
+        return parsed;
+      }
+    }
+  } catch {
+    // Fallback al estado inicial por defecto
+  }
+  return DEFAULT_PRICING_STATE;
+}
+
+export function getInitialDailyOfferState(): DailyOfferState {
+  try {
+    const local = safeStorage.getItem(LOCAL_STORAGE_DAILY_OFFER_KEY);
+    if (local) {
+      const parsed = JSON.parse(local) as DailyOfferState;
+      if (parsed && parsed.fiambreId && parsed.quesoId) {
+        return parsed;
+      }
+    }
+  } catch {
+    // Fallback al estado inicial por defecto
+  }
+  return DEFAULT_DAILY_OFFER_STATE;
+}
+
 // ==========================================
 // 2. SUBSCRIPCIONES REACTIVAS A FIRESTORE
 // ==========================================
@@ -147,16 +177,7 @@ export function subscribeToPricingState(
   onError?: (error: Error) => void
 ): () => void {
   if (!isFirebaseConfigured || !db) {
-    try {
-      const local = safeStorage.getItem(LOCAL_STORAGE_PRICING_KEY);
-      if (local) {
-        onUpdate(JSON.parse(local));
-      } else {
-        onUpdate(DEFAULT_PRICING_STATE);
-      }
-    } catch {
-      onUpdate(DEFAULT_PRICING_STATE);
-    }
+    onUpdate(getInitialPricingState());
     if (typeof window !== 'undefined') {
       const handler = (e: StorageEvent) => {
         if (e.key === LOCAL_STORAGE_PRICING_KEY && e.newValue) {
@@ -180,6 +201,11 @@ export function subscribeToPricingState(
     (docSnap) => {
       if (docSnap.exists()) {
         const data = docSnap.data() as PricingState;
+        try {
+          safeStorage.setItem(LOCAL_STORAGE_PRICING_KEY, JSON.stringify(data));
+        } catch {
+          // Ignorar errores de cuota en storage
+        }
         onUpdate(data);
       } else {
         seedInitialPricingData().then(() => {
@@ -190,7 +216,7 @@ export function subscribeToPricingState(
     (err) => {
       console.warn('[Firestore] Error en suscripción de precios, usando fallback:', err);
       onError?.(err);
-      onUpdate(DEFAULT_PRICING_STATE);
+      onUpdate(getInitialPricingState());
     }
   );
 }
@@ -200,16 +226,7 @@ export function subscribeToDailyOfferState(
   onError?: (error: Error) => void
 ): () => void {
   if (!isFirebaseConfigured || !db) {
-    try {
-      const local = safeStorage.getItem(LOCAL_STORAGE_DAILY_OFFER_KEY);
-      if (local) {
-        onUpdate(JSON.parse(local));
-      } else {
-        onUpdate(DEFAULT_DAILY_OFFER_STATE);
-      }
-    } catch {
-      onUpdate(DEFAULT_DAILY_OFFER_STATE);
-    }
+    onUpdate(getInitialDailyOfferState());
     if (typeof window !== 'undefined') {
       const handler = (e: StorageEvent) => {
         if (e.key === LOCAL_STORAGE_DAILY_OFFER_KEY && e.newValue) {
@@ -233,6 +250,11 @@ export function subscribeToDailyOfferState(
     (docSnap) => {
       if (docSnap.exists()) {
         const data = docSnap.data() as DailyOfferState;
+        try {
+          safeStorage.setItem(LOCAL_STORAGE_DAILY_OFFER_KEY, JSON.stringify(data));
+        } catch {
+          // Ignorar errores de cuota en storage
+        }
         onUpdate(data);
       } else {
         seedInitialDailyOfferData().then(() => {
@@ -243,7 +265,7 @@ export function subscribeToDailyOfferState(
     (err) => {
       console.warn('[Firestore] Error en suscripción de oferta diaria, usando fallback:', err);
       onError?.(err);
-      onUpdate(DEFAULT_DAILY_OFFER_STATE);
+      onUpdate(getInitialDailyOfferState());
     }
   );
 }
@@ -265,8 +287,13 @@ export async function savePricingState(
     updatedBy: adminEmail,
   };
 
-  if (!isFirebaseConfigured || !db) {
+  try {
     safeStorage.setItem(LOCAL_STORAGE_PRICING_KEY, JSON.stringify(payload));
+  } catch {
+    // Ignorar error de cuota
+  }
+
+  if (!isFirebaseConfigured || !db) {
     await logAdminAction(actionType, description, adminEmail, details);
     return;
   }
@@ -288,8 +315,13 @@ export async function updateDailyOffer(
     updatedBy: adminEmail,
   };
 
-  if (!isFirebaseConfigured || !db) {
+  try {
     safeStorage.setItem(LOCAL_STORAGE_DAILY_OFFER_KEY, JSON.stringify(payload));
+  } catch {
+    // Ignorar error de cuota
+  }
+
+  if (!isFirebaseConfigured || !db) {
     await logAdminAction(
       'DAILY_OFFER_UPDATE',
       `Oferta del día actualizada: ${payload.title} (${Math.round(payload.discountPercentage * 100)}% OFF)`,
@@ -367,11 +399,11 @@ export async function applyGlobalPriceIncrease(
 
   const firestoreDb = db;
   const docRef = doc(firestoreDb, 'config', 'pricing');
-  return await runTransaction(firestoreDb, async (transaction) => {
+  const result = await runTransaction(firestoreDb, async (transaction) => {
     const docSnap = await transaction.get(docRef);
     const current: PricingState = docSnap.exists()
       ? (docSnap.data() as PricingState)
-      : DEFAULT_PRICING_STATE;
+      : getInitialPricingState();
 
     const updated: PricingState = JSON.parse(JSON.stringify(current));
     let changedCount = 0;
@@ -425,6 +457,14 @@ export async function applyGlobalPriceIncrease(
 
     return updated;
   });
+
+  try {
+    safeStorage.setItem(LOCAL_STORAGE_PRICING_KEY, JSON.stringify(result));
+  } catch {
+    // Ignorar error de cuota
+  }
+
+  return result;
 }
 
 // ==========================================
@@ -433,46 +473,48 @@ export async function applyGlobalPriceIncrease(
 
 export async function getCurrentPricing(): Promise<PricingState> {
   if (!isFirebaseConfigured || !db) {
-    try {
-      const stored = safeStorage.getItem(LOCAL_STORAGE_PRICING_KEY);
-      return stored ? JSON.parse(stored) : DEFAULT_PRICING_STATE;
-    } catch {
-      return DEFAULT_PRICING_STATE;
-    }
+    return getInitialPricingState();
   }
 
   try {
     const docRef = doc(db, 'config', 'pricing');
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
-      return docSnap.data() as PricingState;
+      const data = docSnap.data() as PricingState;
+      try {
+        safeStorage.setItem(LOCAL_STORAGE_PRICING_KEY, JSON.stringify(data));
+      } catch {
+        // Ignorar error de cuota
+      }
+      return data;
     }
   } catch (e) {
     console.warn('[Pricing] Error al leer pricing de Firestore:', e);
   }
-  return DEFAULT_PRICING_STATE;
+  return getInitialPricingState();
 }
 
 export async function getCurrentDailyOffer(): Promise<DailyOfferState> {
   if (!isFirebaseConfigured || !db) {
-    try {
-      const stored = safeStorage.getItem(LOCAL_STORAGE_DAILY_OFFER_KEY);
-      return stored ? JSON.parse(stored) : DEFAULT_DAILY_OFFER_STATE;
-    } catch {
-      return DEFAULT_DAILY_OFFER_STATE;
-    }
+    return getInitialDailyOfferState();
   }
 
   try {
     const docRef = doc(db, 'config', 'dailyOffer');
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
-      return docSnap.data() as DailyOfferState;
+      const data = docSnap.data() as DailyOfferState;
+      try {
+        safeStorage.setItem(LOCAL_STORAGE_DAILY_OFFER_KEY, JSON.stringify(data));
+      } catch {
+        // Ignorar error de cuota
+      }
+      return data;
     }
   } catch (e) {
     console.warn('[DailyOffer] Error al leer dailyOffer de Firestore:', e);
   }
-  return DEFAULT_DAILY_OFFER_STATE;
+  return getInitialDailyOfferState();
 }
 
 export async function seedInitialPricingData(): Promise<void> {

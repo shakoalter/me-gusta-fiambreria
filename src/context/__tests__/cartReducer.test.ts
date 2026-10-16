@@ -323,4 +323,72 @@ describe('CartReducer — Suite Integral de Estado y Negocio', () => {
     expect(stateResetSignal.resetSignal).toBe(1);
     expect(stateResetSignal.isOpen).toBe(false);
   });
+
+  it('Caso K: ADD_ITEM sobre un sándwich existente con precio viejo debe actualizar unitPrice y subtotal al nuevo precio', () => {
+    const swViejoEnCarrito: SandwichCustomization = {
+      id: 'sw-viejo',
+      fiambre: mortadela,
+      queso: quesoPesto,
+      extras: [],
+      aderezos: [mayonesa],
+      quantity: 1,
+      unitPrice: 4900, // Precio antes de la suba global
+      subtotal: 4900,
+    };
+
+    const swNuevoConSuba: SandwichCustomization = {
+      id: 'sw-nuevo',
+      fiambre: mortadela,
+      queso: quesoPesto,
+      extras: [],
+      aderezos: [mayonesa],
+      quantity: 1,
+      unitPrice: 5400, // Precio después de la suba global (+$500)
+      subtotal: 5400,
+    };
+
+    const state1 = cartReducer(initialState, { type: 'ADD_ITEM', payload: swViejoEnCarrito });
+    const state2 = cartReducer(state1, { type: 'ADD_ITEM', payload: swNuevoConSuba });
+
+    expect(state2.items).toHaveLength(1);
+    expect(state2.items[0].quantity).toBe(2);
+    expect(state2.items[0].unitPrice).toBe(5400);
+    expect(state2.items[0].subtotal).toBe(10800);
+    expect(state2.totalPrice).toBe(10800);
+  });
+
+  it('Caso L: SYNC_PRICES debe recalcular automáticamente los precios de carritos guardados tras una suba global', async () => {
+    const { DEFAULT_PRICING_STATE } = await import('../../services/adminService');
+    const swViejo: CartItem = {
+      id: 'stored-old',
+      fiambre: mortadela,
+      queso: quesoPesto,
+      extras: [tomate],
+      aderezos: [mayonesa],
+      quantity: 2,
+      unitPrice: 4900 + 800, // 5700 viejo
+      subtotal: 11400,
+    };
+
+    const stateLoaded = cartReducer(initialState, {
+      type: 'LOAD_STORED_CART',
+      payload: [swViejo],
+    });
+    expect(stateLoaded.totalPrice).toBe(11400);
+
+    // Simulamos que llega la matriz actualizada desde Firestore con +$500 en sándwiches
+    const updatedPricing = JSON.parse(JSON.stringify(DEFAULT_PRICING_STATE));
+    updatedPricing.matrix['mortadela']['queso-pesto'] = 5400; // 4900 + 500
+
+    const stateSynced = cartReducer(stateLoaded, {
+      type: 'SYNC_PRICES',
+      payload: { pricing: updatedPricing },
+    });
+
+    // Nuevo unitPrice: 5400 + 800 (tomate) = 6200 -> x2 = 12400
+    expect(stateSynced.items[0].unitPrice).toBe(6200);
+    expect(stateSynced.items[0].subtotal).toBe(12400);
+    expect(stateSynced.totalPrice).toBe(12400);
+  });
 });
+
